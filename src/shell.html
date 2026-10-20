@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>АИС «Техноконтур» · шифр «Провидец» — система поддержки принятия решений</title>
+<style>
+/* ============================================================
+   АИС «Техноконтур» | Шифр темы «Провидец» | Версия 4.0
+   Интерактивная программа-прототип (единый HTML-файл)
+   Архитектура: Ядро + подключаемые модули (Microkernel)
+   ============================================================ */
+:root{
+  --bg:#070d1a; --bg2:#0b1426; --panel:#0f1a30; --panel2:#13203a; --panel3:#182747;
+  --line:#1d2e50; --line2:#27406e;
+  --tx:#dce6f7; --tx2:#8ca0c4; --tx3:#5d719a;
+  --acc:#38bdf8; --acc2:#22d3ee; --gold:#fbbf24; --green:#34d399; --red:#f87171;
+  --orange:#fb923c; --violet:#a78bfa; --pink:#f472b6;
+  --mono:'Consolas','SF Mono','Cascadia Code',monospace;
+  --sans:-apple-system,'Segoe UI','Roboto','Helvetica Neue',Arial,sans-serif;
+  --r:10px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--tx);font-family:var(--sans);font-size:14px;overflow:hidden}
+::-webkit-scrollbar{width:9px;height:9px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:#22355c;border-radius:5px}
+::-webkit-scrollbar-thumb:hover{background:#2e4a7d}
+button{font-family:var(--sans);cursor:pointer}
+input,select,textarea{font-family:var(--sans)}
+
+/* ---------- ЭКРАН ВХОДА ---------- */
+#login{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;
+  background:
+    radial-gradient(1000px 500px at 15% -10%,rgba(56,189,248,.12),transparent 60%),
+    radial-gradient(900px 500px at 110% 110%,rgba(167,139,250,.10),transparent 60%),
+    var(--bg);
+}
+#login .grid-bg{position:absolute;inset:0;opacity:.35;pointer-events:none;
+  background-image:linear-gradient(rgba(56,189,248,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(56,189,248,.05) 1px,transparent 1px);
+  background-size:42px 42px;}
+.login-card{position:relative;width:860px;max-width:94vw;background:linear-gradient(160deg,rgba(19,32,58,.92),rgba(11,20,38,.96));
+  border:1px solid var(--line2);border-radius:16px;padding:34px 38px;box-shadow:0 30px 90px rgba(0,0,0,.55)}
+.login-head{display:flex;gap:18px;align-items:center;margin-bottom:8px}
+.login-head h1{font-size:23px;letter-spacing:.4px}
+.login-head h1 b{color:var(--acc)}
+.login-sub{color:var(--tx2);font-size:13px;margin-bottom:22px;line-height:1.5}
+.login-sub .chip{display:inline-block;margin-left:8px;padding:2px 10px;border-radius:20px;border:1px solid var(--line2);
+  background:rgba(56,189,248,.08);color:var(--acc2);font-size:11.5px;vertical-align:1px}
+.lsec{margin-bottom:18px}
+.lsec>label.t{display:block;font-size:11.5px;text-transform:uppercase;letter-spacing:1.4px;color:var(--tx3);margin-bottom:9px;font-weight:600}
+.variants{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.variant{border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;cursor:pointer;background:var(--panel);transition:.15s}
+.variant:hover{border-color:var(--line2);transform:translateY(-1px)}
+.variant.sel{border-color:var(--acc);background:linear-gradient(150deg,rgba(56,189,248,.10),rgba(15,26,48,.9));box-shadow:0 0 0 1px var(--acc),0 8px 26px rgba(56,189,248,.12)}
+.variant h4{font-size:14px;margin-bottom:4px;color:var(--tx)}
+.variant.sel h4{color:var(--acc)}
+.variant p{font-size:12px;color:var(--tx2);line-height:1.45}
+.roles{display:flex;flex-wrap:wrap;gap:8px}
+.role-btn{border:1px solid var(--line);background:var(--panel);color:var(--tx2);padding:7px 13px;border-radius:8px;font-size:12.5px;transition:.15s}
+.role-btn:hover{border-color:var(--line2);color:var(--tx)}
+.role-btn.sel{border-color:var(--acc);color:var(--acc);background:rgba(56,189,248,.10);font-weight:600}
+.login-row{display:flex;align-items:center;gap:14px;margin-top:6px}
+.login-row input{flex:1;background:var(--bg2);border:1px solid var(--line);color:var(--tx);padding:11px 14px;border-radius:8px;font-size:13.5px;outline:none}
+.login-row input:focus{border-color:var(--acc)}
+.btn-primary{background:linear-gradient(135deg,#0ea5e9,#6366f1);color:#fff;border:none;padding:12px 30px;border-radius:9px;
+  font-size:14px;font-weight:600;letter-spacing:.4px;box-shadow:0 6px 22px rgba(56,130,247,.35);transition:.15s}
+.btn-primary:hover{filter:brightness(1.12);transform:translateY(-1px)}
+.login-note{margin-top:16px;font-size:11.5px;color:var(--tx3);line-height:1.5;border-top:1px dashed var(--line);padding-top:12px}
+#boot{display:none;margin-top:14px}
+#boot .boot-line{font-family:var(--mono);font-size:12px;color:var(--green);padding:2px 0;opacity:0;animation:fadein .25s forwards}
+@keyframes fadein{to{opacity:1}}
+.bootbar{height:5px;background:var(--bg2);border-radius:4px;overflow:hidden;margin-top:8px;border:1px solid var(--line)}
+.bootbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--acc),var(--acc2));transition:width .3s}
+
+/* ---------- КАРКАС ПРИЛОЖЕНИЯ ---------- */
+#app{display:none;height:100vh;grid-template-rows:54px 1fr;grid-template-columns:252px 1fr;
+  grid-template-areas:"top top" "side main"}
+#topbar{grid-area:top;display:flex;align-items:center;gap:16px;padding:0 16px;
+  background:linear-gradient(180deg,#0e1930,#0b1426);border-bottom:1px solid var(--line);z-index:40}
+.logo{display:flex;align-items:center;gap:10px;min-width:236px}
+.logo svg{filter:drop-shadow(0 0 6px rgba(56,189,248,.5))}
+.logo .lt{line-height:1.15}
+.logo .lt b{font-size:14.5px;letter-spacing:.6px;display:block}
+.logo .lt span{font-size:10px;color:var(--tx3);letter-spacing:2.2px;text-transform:uppercase}
+.vbadge{font-size:11px;padding:4px 11px;border-radius:20px;border:1px solid;font-weight:600;letter-spacing:.3px;white-space:nowrap}
+.vbadge.net{color:var(--acc);border-color:rgba(56,189,248,.45);background:rgba(56,189,248,.09)}
+.vbadge.auto{color:var(--gold);border-color:rgba(251,191,36,.45);background:rgba(251,191,36,.08)}
+#ticker{flex:1;overflow:hidden;white-space:nowrap;font-family:var(--mono);font-size:11.5px;color:var(--tx2);
+  border-left:1px solid var(--line);border-right:1px solid var(--line);padding:0 14px;height:100%;display:flex;align-items:center;min-width:0}
+#ticker .ev{margin-right:34px;opacity:0;animation:tin .4s forwards}
+#ticker .ev b{color:var(--acc2);font-weight:600}
+@keyframes tin{to{opacity:1}}
+#clock{font-family:var(--mono);font-size:12.5px;color:var(--tx2);white-space:nowrap}
+.icon-btn{position:relative;background:none;border:1px solid var(--line);border-radius:8px;width:34px;height:34px;
+  display:flex;align-items:center;justify-content:center;color:var(--tx2);transition:.15s}
+.icon-btn:hover{border-color:var(--acc);color:var(--acc)}
+.icon-btn .cnt{position:absolute;top:-5px;right:-5px;background:var(--red);color:#fff;font-size:9.5px;min-width:16px;height:16px;
+  border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:700;padding:0 3px}
+#userchip{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--tx2);cursor:pointer;padding:5px 10px;border-radius:8px;border:1px solid transparent}
+#userchip:hover{border-color:var(--line)}
+#userchip .av{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#8b5cf6);display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700}
+#userchip b{color:var(--tx)}
+
+/* боковая панель */
+#sidebar{grid-area:side;background:var(--bg2);border-right:1px solid var(--line);overflow-y:auto;padding:10px 8px 30px}
+.nav-group{margin:12px 6px 5px;font-size:10px;text-transform:uppercase;letter-spacing:1.8px;color:var(--tx3);font-weight:700}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:8px;color:var(--tx2);cursor:pointer;
+  font-size:13px;margin:1px 0;border:1px solid transparent;transition:.12s;user-select:none}
+.nav-item:hover{background:var(--panel);color:var(--tx)}
+.nav-item.active{background:linear-gradient(90deg,rgba(56,189,248,.14),rgba(56,189,248,.04));color:var(--acc);border-color:rgba(56,189,248,.3);font-weight:600}
+.nav-item .dot{width:6px;height:6px;border-radius:50%;background:var(--green);margin-left:auto;flex:none;box-shadow:0 0 6px rgba(52,211,153,.7)}
+.nav-item .dot.off{background:#3a4a6b;box-shadow:none}
+.nav-item.offmod{opacity:.45}
+.nav-item .mcode{font-family:var(--mono);font-size:10px;color:var(--tx3);margin-left:auto}
+.nav-item svg{flex:none}
+
+/* основная область */
+#main{grid-area:main;overflow-y:auto;padding:20px 24px 60px;position:relative}
+.page{display:none;animation:pg .25s ease}
+.page.show{display:block}
+@keyframes pg{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.page-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:18px;flex-wrap:wrap}
+.page-head h2{font-size:20px;letter-spacing:.3px}
+.page-head .sub{color:var(--tx2);font-size:12.5px;margin-top:4px;line-height:1.5}
+.page-head .mchip{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;color:var(--acc2);
+  border:1px solid rgba(34,211,238,.3);background:rgba(34,211,238,.07);padding:3px 10px;border-radius:6px;margin-top:8px}
+
+/* карточки и сетки */
+.cards{display:grid;gap:14px}
+.c2{grid-template-columns:repeat(2,1fr)}.c3{grid-template-columns:repeat(3,1fr)}
+.c4{grid-template-columns:repeat(4,1fr)}.c5{grid-template-columns:repeat(5,1fr)}
+@media(max-width:1500px){.c5{grid-template-columns:repeat(3,1fr)}.c4{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:1100px){.c3,.c2{grid-template-columns:1fr}}
+.card{background:linear-gradient(165deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;min-width:0}
+.card h3{font-size:13px;color:var(--tx2);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;font-weight:600;display:flex;align-items:center;gap:8px}
+.card h3 .hico{color:var(--acc)}
+.kpi{position:relative;overflow:hidden}
+.kpi .kv{font-size:26px;font-weight:700;letter-spacing:.3px;font-family:var(--mono)}
+.kpi .kt{color:var(--tx2);font-size:12px;margin-top:4px;line-height:1.4}
+.kpi .kgoal{font-size:11px;color:var(--tx3);margin-top:8px;font-family:var(--mono)}
+.kpi .bar{height:4px;background:var(--bg2);border-radius:3px;margin-top:9px;overflow:hidden}
+.kpi .bar i{display:block;height:100%;border-radius:3px}
+.kpi .corner{position:absolute;top:0;right:0;width:52px;height:52px;background:linear-gradient(225deg,rgba(56,189,248,.14),transparent 70%)}
+.ok{color:var(--green)}.warn{color:var(--gold)}.bad{color:var(--red)}.info{color:var(--acc)}.vio{color:var(--violet)}
+
+/* таблицы */
+.tbl-wrap{overflow:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--panel)}
+table.tbl{width:100%;border-collapse:collapse;font-size:12.8px}
+.tbl th{background:#101c34;color:var(--tx2);text-transform:uppercase;font-size:10.5px;letter-spacing:.9px;padding:9px 12px;text-align:left;
+  border-bottom:1px solid var(--line);position:sticky;top:0;white-space:nowrap;z-index:2}
+.tbl td{padding:8.5px 12px;border-bottom:1px solid rgba(29,46,80,.55);color:var(--tx);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:rgba(56,189,248,.04)}
+.tbl tr.clickable{cursor:pointer}
+.tbl .mono{font-family:var(--mono);font-size:12px}
+
+/* бейджи/чипы */
+.badge{display:inline-flex;align-items:center;gap:5px;padding:2.5px 9px;border-radius:20px;font-size:11px;font-weight:600;border:1px solid;white-space:nowrap}
+.b-green{color:var(--green);border-color:rgba(52,211,153,.4);background:rgba(52,211,153,.10)}
+.b-red{color:var(--red);border-color:rgba(248,113,113,.4);background:rgba(248,113,113,.10)}
+.b-gold{color:var(--gold);border-color:rgba(251,191,36,.4);background:rgba(251,191,36,.10)}
+.b-blue{color:var(--acc);border-color:rgba(56,189,248,.4);background:rgba(56,189,248,.10)}
+.b-vio{color:var(--violet);border-color:rgba(167,139,250,.4);background:rgba(167,139,250,.10)}
+.b-gray{color:var(--tx3);border-color:var(--line2);background:rgba(93,113,154,.08)}
+.tag{display:inline-block;padding:2px 8px;margin:2px 3px 2px 0;border-radius:5px;font-size:11px;background:var(--panel3);color:var(--tx2);border:1px solid var(--line)}
+
+/* кнопки */
+.btn{border:1px solid var(--line2);background:var(--panel2);color:var(--tx);padding:7px 15px;border-radius:8px;font-size:12.5px;transition:.15s;font-weight:500}
+.btn:hover{border-color:var(--acc);color:var(--acc)}
+.btn.sm{padding:4px 11px;font-size:11.5px;border-radius:6px}
+.btn.gr{border-color:rgba(52,211,153,.5);color:var(--green)}
+.btn.gr:hover{background:rgba(52,211,153,.12)}
+.btn.rd{border-color:rgba(248,113,113,.5);color:var(--red)}
+.btn.rd:hover{background:rgba(248,113,113,.12)}
+.btn.ac{border-color:rgba(56,189,248,.55);color:var(--acc);background:rgba(56,189,248,.08)}
+.btn.ac:hover{background:rgba(56,189,248,.16)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-row{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+
+/* переключатель модуля */
+.sw{position:relative;width:40px;height:21px;flex:none}
+.sw input{opacity:0;width:0;height:0;position:absolute}
+.sw .sl{position:absolute;inset:0;background:#25344f;border-radius:20px;transition:.2s;cursor:pointer;border:1px solid var(--line2)}
+.sw .sl:before{content:'';position:absolute;width:15px;height:15px;border-radius:50%;background:#7186ab;top:2px;left:2.5px;transition:.2s}
+.sw input:checked + .sl{background:rgba(52,211,153,.25);border-color:rgba(52,211,153,.6)}
+.sw input:checked + .sl:before{transform:translateX(18.5px);background:var(--green);box-shadow:0 0 8px rgba(52,211,153,.8)}
+.sw input:disabled + .sl{opacity:.65;cursor:not-allowed}
+.sw input:disabled + .sl:before{background:var(--acc)}
+
+/* формы/фильтры */
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:11px;color:var(--tx3);text-transform:uppercase;letter-spacing:.8px;font-weight:600}
+.field input,.field select{background:var(--bg2);border:1px solid var(--line);color:var(--tx);padding:8px 11px;border-radius:7px;font-size:13px;outline:none}
+.field input:focus,.field select:focus{border-color:var(--acc)}
+.filters{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:14px}
+.search-inp{position:relative}
+.search-inp input{width:240px}
+
+/* вкладки и аккордеон */
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:16px;flex-wrap:wrap}
+.tab{padding:8px 16px;font-size:13px;color:var(--tx2);cursor:pointer;border:1px solid transparent;border-bottom:none;border-radius:8px 8px 0 0;margin-bottom:-1px}
+.tab:hover{color:var(--tx);background:var(--panel)}
+.tab.sel{color:var(--acc);border-color:var(--line);background:var(--panel);font-weight:600;border-bottom:1px solid var(--panel)}
+.acc{border:1px solid var(--line);border-radius:8px;margin-bottom:8px;overflow:hidden;background:var(--panel)}
+.acc .ah{display:flex;align-items:center;gap:10px;padding:11px 14px;cursor:pointer;font-size:13px;font-weight:600}
+.acc .ah:hover{background:var(--panel2)}
+.acc .ah .num{font-family:var(--mono);font-size:11px;color:var(--acc2);background:rgba(34,211,238,.08);border:1px solid rgba(34,211,238,.25);padding:1px 7px;border-radius:5px}
+.acc .ah .fill{margin-left:auto;display:flex;align-items:center;gap:9px;font-weight:400}
+.acc .ah .fbar{width:90px;height:5px;background:var(--bg2);border-radius:3px;overflow:hidden}
+.acc .ah .fbar i{display:block;height:100%}
+.acc .ab{display:none;padding:4px 14px 13px;border-top:1px solid var(--line)}
+.acc.open .ab{display:block}
+.acc .chev{transition:.2s;color:var(--tx3)}
+.acc.open .chev{transform:rotate(90deg)}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px;margin-top:10px}
+.fitem{background:var(--bg2);border:1px solid var(--line);border-radius:7px;padding:8px 11px}
+.fitem .fk{font-size:10.5px;color:var(--tx3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px}
+.fitem .fv{font-size:13px;color:var(--tx)}
+.fitem .fv.empty{color:var(--tx3);font-style:italic}
+
+/* конвейер этапов НИОКР */
+.pipeline{display:flex;gap:0;overflow-x:auto;padding:6px 2px 14px}
+.pstage{min-width:148px;flex:1;position:relative;padding:0 5px}
+.pstage .pnode{display:flex;align-items:center;gap:0}
+.pstage .pdot{width:30px;height:30px;border-radius:50%;border:2px solid var(--line2);background:var(--panel);color:var(--tx3);
+  display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:12px;font-weight:700;flex:none;z-index:2}
+.pstage .pline{flex:1;height:2px;background:var(--line2)}
+.pstage:last-child .pline{display:none}
+.pstage.done .pdot{border-color:var(--green);background:rgba(52,211,153,.18);color:var(--green);box-shadow:0 0 10px rgba(52,211,153,.4)}
+.pstage.done .pline{background:linear-gradient(90deg,var(--green),var(--line2))}
+.pstage.cur .pdot{border-color:var(--acc);background:rgba(56,189,248,.2);color:var(--acc);box-shadow:0 0 14px rgba(56,189,248,.6);animation:pulse 1.8s infinite}
+@keyframes pulse{50%{box-shadow:0 0 5px rgba(56,189,248,.35)}}
+.pstage .pname{font-size:11.5px;margin-top:8px;color:var(--tx2);line-height:1.35}
+.pstage.cur .pname{color:var(--acc);font-weight:600}
+.pstage .pterm{font-size:10px;color:var(--tx3);font-family:var(--mono);margin-top:2px}
+
+/* шина событий */
+.evfeed{font-family:var(--mono);font-size:12px;max-height:520px;overflow-y:auto;background:#080e1c;border:1px solid var(--line);border-radius:var(--r);padding:10px}
+.evline{display:flex;gap:10px;padding:3.5px 6px;border-radius:5px;align-items:baseline}
+.evline:hover{background:rgba(56,189,248,.05)}
+.evline .ts{color:var(--tx3);flex:none;font-size:11px}
+.evline .tp{color:var(--acc2);flex:none;min-width:270px;font-weight:600}
+.evline .src{color:var(--violet);flex:none;min-width:110px}
+.evline .pl{color:var(--tx2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.evline.new{animation:evin .4s}
+@keyframes evin{from{background:rgba(56,189,248,.22)}to{background:transparent}}
+
+/* ИВП */
+.ivp-card{border:1px solid var(--line);border-radius:var(--r);background:var(--panel);overflow:hidden;margin-bottom:12px}
+.ivp-head{display:flex;align-items:center;gap:12px;padding:13px 16px;cursor:pointer}
+.ivp-head:hover{background:var(--panel2)}
+.ivp-head .ic{font-family:var(--mono);font-weight:700;color:var(--acc2);background:rgba(34,211,238,.08);border:1px solid rgba(34,211,238,.3);padding:3px 9px;border-radius:6px;font-size:12px}
+.ivp-head h4{font-size:13.5px}
+.ivp-body{display:none;border-top:1px solid var(--line);padding:16px}
+.ivp-card.open .ivp-body{display:block}
+.ivp-cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+@media(max-width:1100px){.ivp-cols{grid-template-columns:1fr}}
+.ivp-box{background:var(--bg2);border:1px solid var(--line);border-radius:8px;padding:11px 13px}
+.ivp-box h5{font-size:10.5px;text-transform:uppercase;letter-spacing:1px;color:var(--tx3);margin-bottom:8px}
+.ivp-box ul{list-style:none}
+.ivp-box li{font-size:12.5px;color:var(--tx2);padding:2.5px 0 2.5px 14px;position:relative;line-height:1.45}
+.ivp-box li:before{content:'▸';position:absolute;left:0;color:var(--acc)}
+.steps{counter-reset:st}
+.step{display:flex;gap:11px;padding:7px 9px;border-radius:8px;border:1px solid transparent;align-items:flex-start}
+.step .sn{counter-increment:st;flex:none;width:23px;height:23px;border-radius:50%;background:var(--panel3);border:1px solid var(--line2);
+  color:var(--tx2);font-size:11px;font-family:var(--mono);display:flex;align-items:center;justify-content:center;margin-top:1px}
+.step .sn:before{content:counter(st)}
+.step .sx{font-size:12.8px;color:var(--tx2);line-height:1.45}
+.step.run{border-color:rgba(56,189,248,.5);background:rgba(56,189,248,.08)}
+.step.run .sn{background:var(--acc);color:#06121f;border-color:var(--acc);box-shadow:0 0 12px rgba(56,189,248,.7)}
+.step.run .sx{color:var(--tx)}
+.step.done .sn{background:rgba(52,211,153,.2);border-color:var(--green);color:var(--green)}
+.step.done .sn:before{content:'✓'}
+
+/* ---------- ГЕОМОДУЛЬ ---------- */
+.geo-layout{display:grid;grid-template-columns:1fr 306px;gap:14px;align-items:start}
+@media(max-width:1250px){.geo-layout{grid-template-columns:1fr}}
+.map-wrap{position:relative;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:
+  radial-gradient(1200px 500px at 50% -20%,rgba(30,58,110,.35),transparent 65%),#060b16;
+  box-shadow:inset 0 0 60px rgba(0,0,0,.5)}
+#mapsvg{display:block;width:100%;height:640px;cursor:grab;touch-action:none}
+#mapsvg.drag{cursor:grabbing}
+.map-toolbar{position:absolute;top:10px;left:10px;display:flex;gap:6px;z-index:5;flex-wrap:wrap;max-width:70%}
+.mtbtn{background:rgba(10,18,35,.88);border:1px solid var(--line2);color:var(--tx2);padding:5px 11px;border-radius:7px;font-size:11.5px;backdrop-filter:blur(4px)}
+.mtbtn:hover{color:var(--acc);border-color:var(--acc)}
+.mtbtn.on{color:#06121f;background:var(--acc);border-color:var(--acc);font-weight:600}
+.map-status{position:absolute;bottom:0;left:0;right:0;display:flex;gap:18px;align-items:center;padding:6px 12px;
+  background:rgba(7,13,26,.9);border-top:1px solid var(--line);font-family:var(--mono);font-size:10.5px;color:var(--tx3);z-index:5;flex-wrap:wrap}
+.map-legend{position:absolute;bottom:34px;left:10px;background:rgba(10,18,35,.92);border:1px solid var(--line2);border-radius:8px;
+  padding:9px 12px;font-size:11px;color:var(--tx2);z-index:5;min-width:168px}
+.map-legend h6{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--tx3);margin-bottom:7px}
+.map-legend .lg{display:flex;align-items:center;gap:8px;padding:2px 0}
+.heatbar{height:8px;border-radius:4px;background:linear-gradient(90deg,#1e3a8a,#0ea5e9,#22d3ee,#a3e635,#fbbf24,#ef4444);margin:6px 0 3px}
+#popup{position:absolute;z-index:20;width:290px;background:rgba(12,21,41,.97);border:1px solid var(--acc);border-radius:10px;
+  box-shadow:0 14px 44px rgba(0,0,0,.6),0 0 0 1px rgba(56,189,248,.2);display:none;backdrop-filter:blur(6px)}
+#popup .ph{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 13px;border-bottom:1px solid var(--line)}
+#popup .ph b{font-size:13px;line-height:1.3}
+#popup .ph .x{cursor:pointer;color:var(--tx3);font-size:16px;padding:0 4px}
+#popup .ph .x:hover{color:var(--red)}
+#popup .pb{padding:11px 13px;font-size:12.3px;color:var(--tx2);line-height:1.55}
+#popup .pb .kv{display:flex;justify-content:space-between;gap:8px;padding:1.5px 0}
+#popup .pb .kv b{color:var(--tx);font-family:var(--mono);font-size:12px}
+.side-panel .card{margin-bottom:12px}
+.marker{cursor:pointer}
+.marker:hover .mring{opacity:1}
+
+/* уведомления */
+#notif{position:absolute;top:52px;right:14px;width:380px;max-height:480px;overflow-y:auto;background:rgba(12,21,41,.98);
+  border:1px solid var(--line2);border-radius:12px;box-shadow:0 24px 70px rgba(0,0,0,.6);z-index:90;display:none}
+#notif.open{display:block}
+#notif .nh{padding:12px 15px;border-bottom:1px solid var(--line);font-weight:600;font-size:13px;display:flex;justify-content:space-between;align-items:center}
+#notif .ni{padding:10px 15px;border-bottom:1px solid rgba(29,46,80,.5);font-size:12.3px;color:var(--tx2);line-height:1.45;display:flex;gap:10px}
+#notif .ni:last-child{border-bottom:none}
+#notif .ni .nd{width:8px;height:8px;border-radius:50%;flex:none;margin-top:4px}
+#notif .ni b{color:var(--tx);display:block;font-size:12.5px;margin-bottom:2px}
+#notif .ni .nt{font-family:var(--mono);font-size:10.5px;color:var(--tx3);margin-top:3px}
+
+/* тосты */
+#toasts{position:fixed;bottom:20px;right:20px;z-index:200;display:flex;flex-direction:column;gap:9px}
+.toast{background:rgba(12,21,41,.97);border:1px solid var(--line2);border-left:3px solid var(--acc);border-radius:9px;
+  padding:11px 16px;font-size:12.8px;color:var(--tx);box-shadow:0 12px 40px rgba(0,0,0,.55);max-width:380px;
+  animation:toastin .3s ease;line-height:1.45}
+.toast.ok{border-left-color:var(--green)}.toast.warn{border-left-color:var(--gold)}.toast.err{border-left-color:var(--red)}
+.toast .tt{font-family:var(--mono);font-size:10.5px;color:var(--tx3);margin-top:3px}
+@keyframes toastin{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:none}}
+.toast.out{animation:toastout .3s forwards}
+@keyframes toastout{to{opacity:0;transform:translateX(30px)}}
+
+/* модуль отключен */
+.mod-off{max-width:620px;margin:70px auto;text-align:center;padding:40px;border:1px dashed var(--line2);border-radius:14px;background:var(--panel)}
+.mod-off .mi{font-size:44px;margin-bottom:14px;opacity:.7}
+.mod-off h3{font-size:17px;margin-bottom:9px;color:var(--gold)}
+.mod-off p{color:var(--tx2);font-size:13px;line-height:1.6;margin-bottom:18px}
+
+/* тепловая матрица компетенций */
+.hcell{font-family:var(--mono);font-weight:700;text-align:center;border-radius:0;font-size:12px}
+.mtx td,.mtx th{border:1px solid rgba(29,46,80,.7);padding:6px 8px}
+.mtx th{background:#101c34}
+
+/* риск-матрица 5x5 */
+.rmtx{display:grid;grid-template-columns:34px repeat(5,1fr);gap:3px;max-width:560px}
+.rmtx .rlab{display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--tx3);font-family:var(--mono);writing-mode:vertical-rl;transform:rotate(180deg)}
+.rmtx .rcell{aspect-ratio:1.35;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:3px;padding:4px;border:1px solid rgba(0,0,0,.25)}
+.rdot{width:17px;height:17px;border-radius:50%;background:#0d1830;border:1.5px solid #fff;color:#fff;font-size:9px;font-family:var(--mono);
+  display:flex;align-items:center;justify-content:center;font-weight:700;cursor:pointer;box-shadow:0 1px 5px rgba(0,0,0,.5)}
+.rmtx .xlab{font-size:10px;color:var(--tx3);font-family:var(--mono);display:flex;align-items:center;justify-content:center}
+
+/* радар/графики */
+.chart-box{display:flex;align-items:center;justify-content:center;padding:6px 0}
+.gauge-row{display:flex;gap:14px;flex-wrap:wrap}
+.gauge{flex:1;min-width:130px;background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:12px;text-align:center}
+.gauge .gv{font-family:var(--mono);font-size:27px;font-weight:700}
+.gauge .gl{font-size:11px;color:var(--tx2);margin-top:3px}
+.gauge .gx{font-size:10.5px;color:var(--tx3);margin-top:6px;line-height:1.4}
+
+/* карточка предприятия */
+.ent-grid{display:grid;grid-template-columns:340px 1fr;gap:14px;align-items:start}
+@media(max-width:1100px){.ent-grid{grid-template-columns:1fr}}
+.ent-card{background:linear-gradient(160deg,rgba(24,39,71,.75),var(--panel));border:1px solid var(--line2);border-radius:12px;padding:18px}
+.ent-card .en{font-size:16.5px;font-weight:700;line-height:1.3;margin-bottom:4px}
+.ent-card .ec{color:var(--tx2);font-size:12.5px;margin-bottom:13px}
+.ent-stat{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:13px}
+.ent-kv{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px dashed rgba(29,46,80,.7);font-size:12.5px}
+.ent-kv span{color:var(--tx2)}
+.ent-kv b{font-family:var(--mono);font-size:12.5px}
+
+/* прочее */
+.split{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:1200px){.split{grid-template-columns:1fr}}
+.hint{font-size:11.5px;color:var(--tx3);line-height:1.5}
+.sec-title{font-size:12px;text-transform:uppercase;letter-spacing:1.3px;color:var(--tx3);font-weight:700;margin:20px 0 10px;display:flex;align-items:center;gap:9px}
+.sec-title:after{content:'';flex:1;height:1px;background:var(--line)}
+.flow-anim{stroke-dasharray:6 6;animation:dash 1.2s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-24}}
+.empty-note{color:var(--tx3);font-size:12.5px;font-style:italic;padding:14px;text-align:center}
+.progress-lg{height:8px;background:var(--bg2);border-radius:5px;overflow:hidden;border:1px solid var(--line)}
+.progress-lg i{display:block;height:100%;border-radius:5px;transition:width .5s}
+.role-l0 .restricted{display:none!important}
+.footer-note{margin-top:26px;padding-top:14px;border-top:1px dashed var(--line);color:var(--tx3);font-size:11px;text-align:center;line-height:1.6}
+.kbd{font-family:var(--mono);font-size:10.5px;background:var(--panel3);border:1px solid var(--line2);border-radius:4px;padding:1px 6px;color:var(--acc2)}
+.blink{animation:blink 1.1s steps(2) infinite}
+@keyframes blink{50%{opacity:.25}}
+
+/* ---------- ГЛОБАЛЬНЫЙ ПОИСК ---------- */
+#gsearchWrap{position:relative;flex:0 1 280px;min-width:150px}
+#gsearch{width:100%;background:var(--bg2);border:1px solid var(--line);color:var(--tx);padding:7px 12px;border-radius:8px;font-size:12.5px;outline:none}
+#gsearch:focus{border-color:var(--acc);box-shadow:0 0 0 2px rgba(56,189,248,.12)}
+#gsearch::placeholder{color:var(--tx3)}
+#gres{position:absolute;top:40px;left:0;right:0;background:rgba(12,21,41,.98);border:1px solid var(--line2);border-radius:10px;
+  max-height:340px;overflow-y:auto;display:none;z-index:95;box-shadow:0 18px 50px rgba(0,0,0,.6)}
+#gres.open{display:block}
+.gres-i{padding:8px 12px;font-size:12.5px;cursor:pointer;border-bottom:1px solid rgba(29,46,80,.5);display:flex;gap:8px;align-items:center;color:var(--tx2)}
+.gres-i:last-child{border-bottom:none}
+.gres-i:hover{background:rgba(56,189,248,.09);color:var(--tx)}
+.gres-i b{color:var(--tx)}
+.gres-i .gt{margin-left:auto;font-size:9.5px;color:var(--tx3);font-family:var(--mono);white-space:nowrap}
+
+/* ---------- МОБИЛЬНАЯ АДАПТАЦИЯ ---------- */
+#hamb{display:none}
+@media(max-width:980px){
+  #app{grid-template-columns:1fr;grid-template-areas:"top" "main"}
+  #sidebar{position:fixed;top:54px;bottom:0;left:0;width:252px;z-index:70;transform:translateX(-106%);
+    transition:transform .22s ease;box-shadow:24px 0 60px rgba(0,0,0,.55)}
+  #app.navopen #sidebar{transform:none}
+  #hamb{display:flex}
+  #ticker{display:none}
+  #clock{display:none}
+  .logo{min-width:auto}
+  .logo .lt{display:none}
+  #mapsvg{height:430px}
+}
+
+/* ---------- ОТЧЕТЫ (MOD-REPORT) ---------- */
+.rep-prev{background:#0b1426;border:1px solid var(--line2);border-radius:var(--r);padding:18px 20px;margin-top:12px}
+.rep-prev .rh{text-align:center;border-bottom:2px solid var(--line2);padding-bottom:11px;margin-bottom:13px}
+.rep-prev .rh b{font-size:15.5px;letter-spacing:.4px}
+.rep-prev .rh .rm{font-family:var(--mono);font-size:11px;color:var(--tx3);margin-top:5px}
+.rep-meta{display:flex;gap:16px;flex-wrap:wrap;font-size:11.5px;color:var(--tx2);margin-bottom:12px;font-family:var(--mono)}
+.iam-note{border:1px solid rgba(251,191,36,.45);background:rgba(251,191,36,.07);border-radius:var(--r);
+  padding:11px 15px;font-size:12.5px;color:var(--tx2);margin-bottom:14px;line-height:1.55}
+.iam-note b{color:var(--gold)}
+
+/* ---------- СПРАВОЧНЫЙ ЦЕНТР (F1) ---------- */
+#helpOv{position:fixed;inset:0;z-index:250;background:rgba(4,8,16,.6);display:none}
+#helpOv.on{display:block}
+#helpWin{position:fixed;z-index:251;top:6vh;left:50%;transform:translateX(-50%);width:760px;max-width:94vw;
+  max-height:86vh;display:none;flex-direction:column;background:linear-gradient(165deg,#13203a,#0b1426);
+  border:1px solid var(--acc);border-radius:14px;box-shadow:0 30px 90px rgba(0,0,0,.65)}
+#helpWin.on{display:flex}
+.hw-h{display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid var(--line)}
+.hw-h b{font-size:15px;color:var(--acc)}
+.hw-h .x{margin-left:auto;cursor:pointer;color:var(--tx3);font-size:19px;padding:0 4px}
+.hw-h .x:hover{color:var(--red)}
+.hw-search{padding:12px 18px 6px}
+.hw-search input{width:100%;background:var(--bg2);border:1px solid var(--line2);color:var(--tx);padding:10px 14px;border-radius:9px;font-size:13.5px;outline:none}
+.hw-search input:focus{border-color:var(--acc);box-shadow:0 0 0 2px rgba(56,189,248,.12)}
+#helpRes{overflow-y:auto;padding:8px 18px 16px}
+.hr-cat{font-size:10px;text-transform:uppercase;letter-spacing:1.4px;color:var(--tx3);font-weight:700;margin:12px 0 6px}
+.hr-i{display:flex;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer;border:1px solid transparent;align-items:baseline}
+.hr-i:hover{background:rgba(56,189,248,.07);border-color:var(--line)}
+.hr-i b{font-size:12.8px;color:var(--tx);white-space:nowrap}
+.hr-i span{font-size:11.8px;color:var(--tx2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+.hr-i .hk{margin-left:auto;font-family:var(--mono);font-size:9.5px;color:var(--tx3);white-space:nowrap}
+mark{background:rgba(56,189,248,.28);color:var(--acc2);border-radius:3px;padding:0 1px}
+
+/* ---------- ГИД-ТУР ---------- */
+#tourOv{position:fixed;inset:0;z-index:300;background:rgba(4,8,16,.55);display:none}
+#tourHi{position:fixed;z-index:301;border:2px solid var(--acc);border-radius:10px;
+  box-shadow:0 0 22px rgba(56,189,248,.75),inset 0 0 12px rgba(56,189,248,.12);display:none;pointer-events:none;transition:all .22s ease}
+#tourPop{position:fixed;z-index:302;width:368px;max-width:92vw;background:linear-gradient(160deg,#152442,#0b1426);
+  border:1px solid var(--acc);border-radius:12px;padding:16px 18px;box-shadow:0 24px 70px rgba(0,0,0,.65);display:none}
+#tourPop .tp-t{font-size:14.5px;font-weight:700;margin-bottom:7px;color:var(--acc)}
+#tourPop .tp-x{font-size:12.8px;color:var(--tx2);line-height:1.58}
+#tourPop .tp-r{display:flex;gap:8px;align-items:center;margin-top:14px}
+#tourPop .tp-c{margin-right:auto;font-family:var(--mono);font-size:11px;color:var(--tx3)}
+
+/* ---------- СВЕТЛАЯ ТЕМА (заимствовано: прототип АССПР v2.4, applyTheme) ---------- */
+body.light{
+  --bg:#e9edf4;--bg2:#e2e8f2;--panel:#ffffff;--panel2:#f8fafd;--panel3:#edf2f9;
+  --line:#d3dcea;--line2:#b7c5d9;
+  --tx:#1d2b3e;--tx2:#47596f;--tx3:#78879c;
+  --acc:#0f6ab8;--acc2:#0e7490;
+}
+body.light #topbar{background:linear-gradient(180deg,#ffffff,#f2f5fa)}
+body.light .evfeed{background:#f6f8fc;color:#33415a}
+body.light .evline .pl{color:#47596f}
+body.light .kpi .kv,body.light .gauge .gv{text-shadow:none}
+body.light .map-wrap{background:#dfe7f1;box-shadow:inset 0 0 40px rgba(30,50,80,.15)}
+body.light pre,body.light .mono{color:inherit}
+body.light .toast{background:#fff;color:#1d2b3e}
+body.light #notif,body.light #gres,body.light #tourPop,body.light #helpWin,body.light #popup{background:#fff}
+
+/* ---------- КИОСК-РЕЖИМ (демонстрация заказчику) ---------- */
+#kioskBar{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:240;display:none;
+  align-items:center;gap:14px;width:min(880px,94vw);background:rgba(8,15,30,.94);border:1px solid var(--acc);
+  border-radius:14px;padding:12px 18px;box-shadow:0 18px 60px rgba(0,0,0,.6),0 0 0 1px rgba(56,189,248,.15);backdrop-filter:blur(8px)}
+#kioskBar .kcap{flex:1;font-size:13px;color:var(--tx);line-height:1.5}
+#kioskBar .kbtn{background:var(--panel2);border:1px solid var(--line2);color:var(--tx2);width:30px;height:30px;border-radius:8px;font-size:14px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+#kioskBar .kbtn:hover{border-color:var(--acc);color:var(--acc)}
+#kioskBar .klive{color:var(--red);font-size:15px}
+#kioskBar .kstep{font-family:var(--mono);font-size:10.5px;color:var(--tx3);white-space:nowrap}
+.kino-badge{position:fixed;top:60px;left:50%;transform:translateX(-50%);z-index:239;background:rgba(248,113,113,.15);
+  border:1px solid var(--red);color:var(--red);font-size:10.5px;font-family:var(--mono);letter-spacing:2px;
+  padding:3px 14px;border-radius:20px;display:none}
+
+/* ---------- ПЕРЕКРЁСТНЫЕ ССЫЛКИ НА ТЗ ---------- */
+.tzref{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-bottom:14px;font-size:11.5px;color:var(--tx3)}
+.tzref a{color:var(--acc2);text-decoration:none;border:1px solid rgba(34,211,238,.3);background:rgba(34,211,238,.07);padding:2.5px 10px;border-radius:20px;font-size:11px;transition:.15s}
+.tzref a:hover{border-color:var(--acc);color:var(--acc);background:rgba(56,189,248,.14)}
+.tzref .tzdoc{margin-left:auto;border-style:dashed}
+
+/* ---------- КИОСК: ПОЛНОЭКРАННЫЙ ПРОФИЛЬ ---------- */
+body.kiosk-fs #app{grid-template-rows:0 1fr;grid-template-columns:1fr;grid-template-areas:"top" "main"}
+body.kiosk-fs #topbar,body.kiosk-fs #sidebar{display:none}
+body.kiosk-fs #main{padding:30px 46px 130px}
+body.kiosk-fs{font-size:15.5px}
+body.kiosk-fs .page-head h2{font-size:27px}
+body.kiosk-fs .page-head .sub{font-size:14px}
+body.kiosk-fs #kioskBar{width:min(1150px,96vw);padding:16px 24px}
+body.kiosk-fs #kioskBar .kcap{font-size:15.5px}
+body.kiosk-fs .card{padding:20px 22px}
+body.kiosk-fs #kinoBadge{top:12px}
+
+/* ---------- БЕНЧМАРКИ ---------- */
+.bench-row{display:grid;grid-template-columns:138px 1fr 64px;gap:10px;align-items:center;font-size:11.8px;margin:6px 0;color:var(--tx2)}
+.bench-bars{position:relative;height:16px}
+.bench-bars .bb{height:7px;border-radius:4px;position:absolute;left:0;top:0}
+.bench-bars .bb2{height:7px;border-radius:4px;position:absolute;left:0;top:9px;background:#3d4f70}
+.bench-bars .mk{position:absolute;top:-2px;width:2px;height:20px;background:#fff;opacity:.85;box-shadow:0 0 4px rgba(0,0,0,.9)}
+
+/* ---------- АССПР: МАСТЕР ИМПОРТА ---------- */
+.asspr-card{border:1px solid rgba(167,139,250,.45);background:linear-gradient(150deg,rgba(167,139,250,.07),rgba(15,26,48,.55));border-radius:var(--r);padding:15px 17px;margin-top:12px}
+.asspr-card h4{font-size:13.5px;color:var(--violet);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.val-row{display:flex;gap:10px;align-items:center;font-size:12.5px;padding:5.5px 0;border-bottom:1px dashed var(--line);color:var(--tx2)}
+.val-row b{margin-left:auto;font-family:var(--mono);font-size:12px}
+.imp-log{font-family:var(--mono);font-size:11.8px;background:#080e1c;border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-top:10px;line-height:1.75;max-height:220px;overflow-y:auto}
+.imp-log .ok{color:var(--green)}.imp-log .wr{color:var(--gold)}.imp-log .in{color:var(--acc2)}
+
+/* ---------- ЦИФРОВОЙ ДВОЙНИК ---------- */
+.twin{border:1px solid rgba(34,211,238,.4);background:linear-gradient(150deg,rgba(34,211,238,.08),rgba(15,26,48,.55));border-radius:var(--r);padding:14px 16px}
+.twin .th{display:flex;align-items:center;gap:9px;margin-bottom:9px}
+.twin .th b{font-size:13.5px;color:var(--acc2)}
+.twin .crc{font-family:var(--mono);font-size:11px;color:var(--gold);background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.3);padding:2px 8px;border-radius:5px}
+
+/* ---------- ХРАНИЛИЩЕ ДАННЫХ ---------- */
+.dbjson{font-family:var(--mono);font-size:11.3px;background:#080e1c;border:1px solid var(--line);border-radius:8px;padding:12px 14px;max-height:380px;overflow:auto;white-space:pre-wrap;color:#9fb4d4;line-height:1.55}
+
+/* ---------- ПЕЧАТЬ ---------- */
+@media print{
+  body{overflow:visible;background:#fff;color:#111}
+  #topbar,#sidebar,#notif,#toasts,#hamb,#gsearchWrap,.map-toolbar,.map-status,#popup,.btn-row{display:none!important}
+  #app{display:block!important;height:auto}
+  #main{overflow:visible;padding:0}
+  .page{display:block!important}
+  .card,.tbl-wrap,.map-wrap,.ent-card,.rep-prev,.ivp-box,.fitem,.gauge,.acc{background:#fff!important;border-color:#aaa!important;color:#111!important;break-inside:avoid}
+  .tbl td,.tbl th{color:#111!important;border-color:#bbb!important;background:#fff!important}
+  .tbl th{position:static}
+  h2,h3,b{color:#111!important}
+  .hint,.sub,.kgoal{color:#555!important}
+  #mapsvg{height:auto;max-height:560px}
+  .map-legend{background:#fff;border-color:#999;color:#333}
+  .footer-note{color:#777}
+}
+</style>
+</head>
+<body>
+
+<!-- ================= ЭКРАН ВХОДА ================= -->
+<div id="login">
+  <div class="grid-bg"></div>
+  <div class="login-card">
+    <div class="login-head">
+      <svg width="52" height="52" viewBox="0 0 52 52">
+        <polygon points="26,2 48,14.5 48,37.5 26,50 4,37.5 4,14.5" fill="none" stroke="#38bdf8" stroke-width="1.6" opacity=".85"/>
+        <polygon points="26,8 42.5,17.5 42.5,34.5 26,44 9.5,34.5 9.5,17.5" fill="rgba(56,189,248,.07)" stroke="#22d3ee" stroke-width="1"/>
+        <ellipse cx="26" cy="26" rx="12.5" ry="7.4" fill="none" stroke="#38bdf8" stroke-width="1.6"/>
+        <circle cx="26" cy="26" r="4.1" fill="#22d3ee"/>
+        <circle cx="26" cy="26" r="1.6" fill="#06121f"/>
+        <path d="M26 6 L26 11 M26 41 L26 46 M8 26 L13 26 M39 26 L44 26" stroke="#38bdf8" stroke-width="1.2" opacity=".6"/>
+      </svg>
+      <div>
+        <h1>АИС <b>«ТЕХНОКОНТУР»</b></h1>
+        <div style="font-size:11.5px;color:var(--tx3);letter-spacing:2.6px;text-transform:uppercase;margin-top:3px">Шифр темы «Провидец» · ТЗ 4.0 · программа v13.0.0</div>
+      </div>
+    </div>
+    <div class="login-sub">Автоматизированная информационная система поддержки принятия решений для работы с предприятиями отрасли
+      телекоммуникаций, вычислительной техники и средств связи<span class="chip">Ядро + модули · Microkernel</span><span class="chip">ТЗ 4.0</span></div>
+
+    <div class="lsec">
+      <label class="t">Вариант поставки системы</label>
+      <div class="variants">
+        <div class="variant sel" id="var-net" onclick="selectVariant('network')">
+          <h4>Вариант А · «Техноконтур-Сеть»</h4>
+          <p>Сетевой вариант: защищённое облако, доступ через Интернет (HTTPS/TLS 1.3), автообмен с внешними системами (ФНС, ГИСП, Роспатент), многоарендность. Модель OPEX.</p>
+        </div>
+        <div class="variant" id="var-auto" onclick="selectVariant('autonomous')">
+          <h4>Вариант Б · «Техноконтур-Контур»</h4>
+          <p>Автономный вариант: локальная сеть без выхода в Интернет (air-gap), отечественные ОС и СУБД, класс защиты не ниже 1Б (ФСТЭК), обновление через носитель с ЭЦП ГОСТ Р 34.10-2012. Модель CAPEX.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="lsec">
+      <label class="t">Уровень доступа (роль IAM · RBAC+ABAC)</label>
+      <div class="roles" id="roleRow"></div>
+      <div class="hint" id="roleDesc" style="margin-top:9px"></div>
+    </div>
+
+    <div class="lsec" id="srvSec" style="border:1px solid rgba(52,211,153,.35);background:rgba(52,211,153,.04);border-radius:10px;padding:11px 13px;margin-bottom:12px">
+      <label class="t" style="color:#34d399">Серверный режим — реальный бэкенд (FastAPI · СУБД · JWT IAM)</label>
+      <div class="login-row" style="gap:8px;margin-top:6px">
+        <input id="srvUrl" type="text" placeholder="URL API: http://localhost:8000" style="flex:1.2">
+        <input id="srvLogin" type="text" placeholder="логин (admin)" value="admin" style="width:110px">
+        <input id="srvPass" type="password" placeholder="пароль" style="width:130px">
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--tx2);white-space:nowrap"><input id="srvEnabled" type="checkbox"> войти через сервер</label>
+      </div>
+      <div class="hint" id="srvHint" style="margin-top:7px">При включении: аутентификация JWT (+MFA/TOTP для L7), реестр, паспорта, проекты и шина событий загружаются из СУБД бэкенда; картооснова MOD-GEO — Leaflet + OSM (кнопка «🌐 OSM/Leaflet» на геокарте). Демо-учётки: <span class="kbd">admin/tc-admin-2026</span> (L7, MFA) · <span class="kbd">analyst/tc-analyst-2026</span> (L5) · <span class="kbd">sarmat/tc-org-2026</span> (L4, предприятие E14) · <span class="kbd">guest/tc-guest-2026</span> (L0). Без сервера — демо-режим (модельные данные в файле).</div>
+    </div>
+
+    <div class="login-row">
+      <input id="userName" type="text" placeholder="ФИО оператора (для журнала аудита)" value="Оператор И. А. Крылов">
+      <button class="btn-primary" id="loginBtn" onclick="doLogin()">ВОЙТИ В СИСТЕМУ</button>
+      <button class="btn" style="padding:12px 20px;border-color:rgba(248,113,113,.5);color:var(--red)" onclick="kioskStart()" title="Автоматическая демонстрация для заказчика">🎬 Киоск-демо</button>
+    </div>
+
+    <div id="boot">
+      <div class="bootbar"><i id="bootbarFill"></i></div>
+      <div id="bootLines" style="margin-top:9px;max-height:130px;overflow:hidden"></div>
+    </div>
+
+    <div class="login-note">Демонстрационный прототип АИС «Техноконтур» (шифр «Провидец»), программа версии 8.0.0 по ТЗ версии 4.0. Реализован архитектурный принцип «Ядро + Модули»:
+      все модули взаимодействуют исключительно через ядро (шина событий, API Gateway, IAM). Данные — модельные.
+      Картографическая основа — условная схема (в промышленной версии: Яндекс.Карты / 2ГИС / OSM, OGC WMS/WFS).</div>
+  </div>
+</div>
+
+<!-- ================= ПРИЛОЖЕНИЕ ================= -->
+<div id="app">
+  <!-- верхняя панель -->
+  <div id="topbar">
+    <button class="icon-btn" id="hamb" onclick="document.getElementById('app').classList.toggle('navopen')" title="Меню">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
+    <div class="logo">
+      <svg width="30" height="30" viewBox="0 0 52 52">
+        <polygon points="26,4 46,15.5 46,36.5 26,48 6,36.5 6,15.5" fill="rgba(56,189,248,.08)" stroke="#38bdf8" stroke-width="2"/>
+        <ellipse cx="26" cy="26" rx="11.5" ry="6.8" fill="none" stroke="#22d3ee" stroke-width="2"/>
+        <circle cx="26" cy="26" r="3.6" fill="#38bdf8"/>
+      </svg>
+      <div class="lt"><b>АИС «ТЕХНОКОНТУР»</b><span>шифр «Провидец»</span></div>
+    </div>
+    <span class="vbadge net" id="variantBadge">ВАРИАНТ А · СЕТЬ</span>
+    <div id="ticker"><span style="color:var(--tx3)">Инициализация шины событий ядра…</span></div>
+    <div id="gsearchWrap">
+      <input id="gsearch" type="text" placeholder="🔍 Поиск: предприятие, проект, риск…" autocomplete="off"
+        oninput="gsearch(this.value)" onfocus="gsearch(this.value)" onkeydown="if(event.key==='Escape'){gsearchClose()}">
+      <div id="gres"></div>
+    </div>
+    <div id="clock">--:--:--</div>
+    <button class="icon-btn" onclick="toggleTheme()" id="themeBtn" title="Переключить тему (светлая/тёмная)">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4.4"/><path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M18.7 5.3l-1.6 1.6M6.9 17.1l-1.6 1.6"/></svg>
+    </button>
+    <button class="icon-btn" onclick="kioskStart()" title="Киоск-демонстрация для заказчика (автосценарий по ИВП)">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2.5" y="4" width="19" height="13" rx="2"/><path d="M10 8.6l4.4 2.4L10 13.4z"/><path d="M8 21h8"/></svg>
+    </button>
+    <button class="icon-btn" onclick="openHelp()" title="Справочный центр (F1)">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9.2 9a2.8 2.8 0 0 1 5.4.9c0 1.9-2.6 2.4-2.6 4.1"/><path d="M12 17.2h.01"/></svg>
+    </button>
+    <button class="icon-btn" id="bellBtn" onclick="toggleNotif(event)" title="Уведомления службы ядра">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+      <span class="cnt" id="bellCnt" style="display:none">0</span>
+    </button>
+    <div id="userchip" onclick="toggleNotif(event,true)">
+      <div class="av" id="userAv">АИ</div>
+      <div><b id="userNameTop">—</b><div style="font-size:10.5px;color:var(--tx3)" id="userRoleTop">—</div></div>
+    </div>
+    <button class="icon-btn" onclick="logout()" title="Завершить сеанс">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+    </button>
+  </div>
+
+  <!-- боковая навигация -->
+  <div id="sidebar"><div id="nav"></div></div>
+
+  <!-- рабочая область -->
+  <div id="main"></div>
+
+  <!-- панель уведомлений -->
+  <div id="notif">
+    <div class="nh">Служба уведомлений ядра <span style="cursor:pointer;color:var(--tx3);font-weight:400" onclick="clearNotif()">очистить</span></div>
+    <div id="notifList"></div>
+  </div>
+</div>
+
+<!-- киоск-режим -->
+<div class="kino-badge" id="kinoBadge">● ДЕМО-СЦЕНАРИЙ ДЛЯ ЗАКАЗЧИКА</div>
+<div id="kioskBar">
+  <span class="klive blink">●</span>
+  <div style="flex:1;min-width:0">
+    <div class="kcap" id="kioskCap"></div>
+    <div id="kioskDots" style="margin-top:6px"></div>
+  </div>
+  <span class="kstep" id="kioskStep"></span>
+  <button class="kbtn" onclick="kioskPrev()" title="Предыдущий шаг">‹</button>
+  <button class="kbtn" id="kioskPP" onclick="kioskPause()" title="Пауза/продолжить">⏸</button>
+  <button class="kbtn" onclick="kioskNext()" title="Следующий шаг">›</button>
+  <button class="kbtn" id="kioskLoop" onclick="kioskLoopToggle()" title="Циклический показ (экран в холле)">⟳</button>
+  <button class="kbtn" id="kioskFs" onclick="kioskFs()" title="Полноэкранный киоск-профиль">⛶</button>
+  <button class="kbtn" onclick="kioskStop()" title="Остановить (Esc)">✕</button>
+</div>
+
+<!-- справочный центр -->
+<div id="helpOv" onclick="closeHelp()"></div>
+<div id="helpWin">
+  <div class="hw-h"><b>⎈ Справочный центр</b><span class="hint">F1 · поиск по знаниям ТЗ v4.0: модули, задачи, ИВП, роли, термины, KPI</span><span class="x" onclick="closeHelp()">✕</span></div>
+  <div class="hw-search"><input id="helpQ" placeholder="Введите запрос… (например: тепловая карта, Go/No-Go, TRL, air-gap, L4)" oninput="helpSearch(this.value)"></div>
+  <div id="helpRes"></div>
+</div>
+
+<!-- гид-тур -->
+<div id="tourOv"></div>
+<div id="tourHi"></div>
+<div id="tourPop">
+  <div class="tp-t"></div><div class="tp-x"></div>
+  <div class="tp-r"><span class="tp-c"></span>
+    <button class="btn sm" id="tourPrev" onclick="tourPrev()">← Назад</button>
+    <button class="btn sm rd" onclick="tourStop()">Завершить</button>
+    <button class="btn sm ac" id="tourNext" onclick="tourNext()">Далее →</button>
+  </div>
+</div>
+
+<div id="toasts"></div>
+
