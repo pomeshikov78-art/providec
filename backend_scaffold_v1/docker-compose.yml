@@ -1,0 +1,68 @@
+# Локальный стенд разработки АИС «Техноконтур» (Фаза 0, задача 0.2)
+# Вариант А (сетевой): Kafka как брокер событий. Для варианта Б — заменить на Redis Streams (профиль autonomous).
+# В production (вариант Б): образы заменяются на сертифицированные (Postgres Pro, Astra Linux SE).
+services:
+  postgres:
+    image: postgis/postgis:15-3.4        # stand-in для Postgres Pro + PostGIS
+    environment:
+      POSTGRES_DB: technocontour
+      POSTGRES_USER: tc
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-tc_dev_password}
+    ports: ["5432:5432"]
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tc -d technocontour"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+  redis:
+    image: redis:7-alpine                # кэш API Gateway + Redis Streams (шина варианта Б)
+    command: ["redis-server", "--appendonly", "yes"]
+    ports: ["6379:6379"]
+    volumes: [redisdata:/data]
+
+  minio:
+    image: minio/minio:latest            # S3-совместимое файловое хранилище (доказательная база паспортов)
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-tc-admin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-tc_dev_password}
+    ports: ["9000:9000", "9001:9001"]
+    volumes: [miniodata:/data]
+
+  kafka:
+    image: bitnami/kafka:3.7             # шина событий варианта А (at-least-once, DLQ-топики)
+    environment:
+      KAFKA_CFG_NODE_ID: 0
+      KAFKA_CFG_PROCESS_ROLES: controller,broker
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 0@kafka:9093
+      KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE: "true"
+    ports: ["9092:9092"]
+    volumes: [kafkadata:/bitnami/kafka]
+
+  api:
+    build: ./core
+    environment:
+      TC_VARIANT: network                # network | autonomous
+      DATABASE_URL: postgresql+asyncpg://tc:${POSTGRES_PASSWORD:-tc_dev_password}@postgres:5432/technocontour
+      REDIS_URL: redis://redis:6379/0
+      KAFKA_BOOTSTRAP: kafka:9092
+      MINIO_ENDPOINT: minio:9000
+      JWT_SECRET: ${JWT_SECRET:-dev_secret_change_me}
+    ports: ["8000:8000"]
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_started }
+      kafka: { condition: service_started }
+
+volumes:
+  pgdata:
+  redisdata:
+  miniodata:
+  kafkadata:

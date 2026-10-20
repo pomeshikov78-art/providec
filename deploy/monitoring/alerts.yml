@@ -1,0 +1,40 @@
+# Правила алертинга АИС «Техноконтур» (SLA: вариант А 99,5% / вариант Б 99,0%)
+groups:
+  - name: technocontour-core
+    rules:
+      - alert: CoreDown
+        expr: up{job="technocontour-backend"} == 0
+        for: 1m
+        labels: {severity: critical}
+        annotations:
+          summary: "Ядро/API Gateway недоступно (SLA-инцидент)"
+          description: "Экземпляр {{ $labels.instance }} не отвечает > 1 мин. Менеджер состояний: деградация сервисов."
+
+      - alert: ModulesDegraded
+        expr: tc_modules_degraded > 0
+        for: 5m
+        labels: {severity: warning}
+        annotations:
+          summary: "Каскадная деградация модулей ({{ $value }} шт.)"
+          description: "Опциональные модули деградированы — проверьте реестр модулей ядра."
+
+      - alert: EventDLQ
+        expr: increase(tc_events_total[5m]) == 0
+        for: 10m
+        labels: {severity: warning}
+        annotations:
+          summary: "Шина событий: нет новых событий 10 мин (возможна остановка публикации или DLQ)"
+
+      - alert: AuditChainBroken
+        expr: tc_audit_chain_ok == 0
+        for: 0m
+        labels: {severity: critical}
+        annotations:
+          summary: "Нарушена целостность WORM-аудита (хеш-цепочка) — признак вмешательства"
+
+      - alert: HighLatencyReports
+        expr: tc_report_duration_seconds > 5
+        for: 2m
+        labels: {severity: warning}
+        annotations:
+          summary: "Генерация отчетов превышает норматив ТЗ (5 с)"

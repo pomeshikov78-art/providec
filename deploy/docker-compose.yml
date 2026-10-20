@@ -1,0 +1,164 @@
+# АИС «Техноконтур» (шифр «Провидец») — полный стенд
+# Запуск:  docker compose -f deploy/docker-compose.yml --profile monitoring up -d
+# Профили: monitoring (Prometheus+Grafana), kafka (шина варианта А), keycloak (ЕСИА/OIDC), elk (логирование)
+# Production вариант А: Postgres Pro (замена образа postgres), TLS на ingress, СКЗИ — по docs/SECURITY.md.
+
+name: technocontour
+
+services:
+  postgres:
+    image: postgis/postgis:16-3.4          # dev-профиль; production: Postgres Pro Enterprise + PostGIS-пакет вендора
+    environment:
+      POSTGRES_DB: technocontour
+      POSTGRES_USER: tc_app
+      POSTGRES_PASSWORD: ${TC_DB_PASSWORD:-tc_dev_password}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ../backend_scaffold_v1/db/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
+    ports: ["5432:5432"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tc_app -d technocontour"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory", "512mb", "--maxmemory-policy", "allkeys-lru"]
+    volumes: [redisdata:/data]
+    ports: ["6379:6379"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${TC_MINIO_USER:-tc-admin}
+      MINIO_ROOT_PASSWORD: ${TC_MINIO_PASSWORD:-tc_dev_password}
+    volumes: [miniodata:/data]
+    ports: ["9000:9000", "9001:9001"]
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    environment:
+      TC_DATABASE_URL: postgresql+psycopg://tc_app:${TC_DB_PASSWORD:-tc_dev_password}@postgres:5432/technocontour
+      TC_BUS_BACKEND: redis
+      TC_REDIS_URL: redis://redis:6379/0
+      TC_JWT_SECRET: ${TC_JWT_SECRET:?set TC_JWT_SECRET in .env}
+      TC_VARIANT: ${TC_VARIANT:-network}          # network | autonomous
+      TC_MINIO_ENDPOINT: minio:9000
+      TC_CONNECTORS_MODE: ${TC_CONNECTORS_MODE:-sandbox}
+      TC_KEYCLOAK_URL: ${TC_KEYCLOAK_URL:-}
+      TC_GEO_TILE_URL_AUTONOMOUS: ${TC_TILE_URL:-http://tiles.contour.internal/{z}/{x}/{y}.png}
+    depends_on:
+      postgres: {condition: service_healthy}
+      redis: {condition: service_healthy}
+    ports: ["8000:8000"]
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ..
+      dockerfile: frontend/Dockerfile
+    depends_on: [backend]
+    ports: ["8080:80"]
+    restart: unless-stopped
+
+  # ---- профиль: шина Kafka (вариант А, ≥10 000 пользователей) ----
+  kafka:
+    image: bitnami/kafka:3.7
+    profiles: [kafka]
+    environment:
+      KAFKA_CFG_NODE_ID: 0
+      KAFKA_CFG_PROCESS_ROLES: controller,broker
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 0@kafka:9093
+      KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
+    ports: ["9092:9092"]
+
+  # ---- профиль: внешний IdP (ЕСИА через Keycloak, вариант А) ----
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0
+    profiles: [keycloak]
+    command: start-dev --import-realm
+    environment:
+      KEYCLOAK_ADMIN: ${KC_ADMIN:-tc-admin}
+      KEYCLOAK_ADMIN_PASSWORD: ${KC_ADMIN_PASSWORD:-tc_dev_password}
+    volumes: [../deploy/keycloak:/opt/keycloak/data/import:ro]
+    ports: ["8090:8080"]
+
+  # ---- профиль: мониторинг (Prometheus + Grafana) ----
+  prometheus:
+    image: prom/prometheus:v2.53.0
+    profiles: [monitoring]
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/alerts.yml:/etc/prometheus/alerts.yml:ro
+      - promdata:/prometheus
+    ports: ["9090:9090"]
+    depends_on: [backend]
+
+  grafana:
+    image: grafana/grafana:11.1.0
+    profiles: [monitoring]
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-tc_dev_password}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - grafdata:/var/lib/grafana
+      - ./monitoring/grafana-dashboard.json:/var/lib/grafana/dashboards/technocontour.json:ro
+    ports: ["3000:3000"]
+    depends_on: [prometheus]
+
+  alertmanager:
+    image: prom/alertmanager:v0.27.0
+    profiles: [monitoring]
+    ports: ["9093:9093"]
+
+  # ---- профиль: логирование ELK ----
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.14.0
+    profiles: [elk]
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: "false"
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+    ports: ["9200:9200"]
+    volumes: [esdata:/usr/share/elasticsearch/data]
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.14.0
+    profiles: [elk]
+    volumes:
+      - ./logging/logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
+    ports: ["5044:5044"]
+    depends_on: [elasticsearch]
+
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:8.14.0
+    profiles: [elk]
+    user: root
+    volumes:
+      - ./logging/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on: [logstash]
+
+volumes:
+  pgdata:
+  redisdata:
+  miniodata:
+  promdata:
+  grafdata:
+  esdata:

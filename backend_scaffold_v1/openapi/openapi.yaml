@@ -1,0 +1,328 @@
+openapi: 3.0.3
+info:
+  title: АИС «Техноконтур» — API Gateway
+  description: >
+    Контракт единой точки входа (ТЗ п.4.4: API Gateway — маршрутизация, rate limiting,
+    кэширование, журналирование). Все модули доступны только через Gateway;
+    прямое обращение к модулям запрещено. Версия контракта следует SemVer.
+  version: 1.0.0
+  contact: { name: Технический руководитель темы «Провидец» }
+servers:
+  - url: https://api.technocontour.local/api/v1
+    description: Вариант А (сетевой, TLS 1.3)
+  - url: https://contour.internal/api/v1
+    description: Вариант Б (автономный, air-gap)
+security: [{ bearerAuth: [] }]
+tags:
+  - { name: auth, description: "IAM: аутентификация, сессии (L0–L7)" }
+  - { name: core, description: "Ядро: реестр модулей, события, аудит, хранилище" }
+  - { name: pass, description: "MOD-PASS: цифровые паспорта (12 разделов, 92 поля)" }
+  - { name: prof, description: "MOD-PROF: профили, бенчмарки, цифровые двойники" }
+  - { name: niokr, description: "MOD-NIOKR: жизненный цикл 0–8, Go/No-Go, EVM/PERT" }
+  - { name: geo, description: "MOD-GEO: объекты, тепловые карты, слои" }
+  - { name: reports, description: "MOD-REPORT: конструктор и экспорт (PDF/DOCX/XLSX)" }
+  - { name: int, description: "MOD-INT: внешние системы, импорт паспортов АССПР" }
+paths:
+  /auth/login:
+    post:
+      tags: [auth]
+      summary: Аутентификация (JWT; ЕСИА для варианта А)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/LoginRequest" }
+      responses:
+        "200": { description: "Токен выдан", content: { application/json: { schema: { $ref: "#/components/schemas/TokenPair" } } } }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+      security: []
+  /auth/refresh:
+    post:
+      tags: [auth]
+      summary: Обновление токена
+      responses: { "200": { description: OK } }
+  /core/modules:
+    get:
+      tags: [core]
+      summary: Реестр модулей (код, версия SemVer, статус, зависимости)
+      responses:
+        "200":
+          description: Список из 15 модулей
+          content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/Module" } } } }
+  /core/modules/{code}:
+    parameters: [ { name: code, in: path, required: true, schema: { type: string, pattern: "^MOD-[A-Z]+$" } } ]
+    patch:
+      tags: [core]
+      summary: Горячее включение/отключение модуля (только L7; обязательные защищены)
+      requestBody:
+        content: { application/json: { schema: { type: object, properties: { enabled: { type: boolean } }, required: [enabled] } } }
+      responses:
+        "200": { description: "Статус изменен; опубликовано module.enabled/disabled" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "409": { description: "Конфликт зависимостей или политика обязательного модуля" }
+    get:
+      tags: [core]
+      summary: Состояние модуля (health, метрики)
+      responses: { "200": { description: OK } }
+  /core/events:
+    get:
+      tags: [core]
+      summary: Журнал шины событий (фильтры type/source/sev, пагинация)
+      parameters:
+        - { name: type, in: query, schema: { type: string } }
+        - { name: source, in: query, schema: { type: string } }
+        - { name: since, in: query, schema: { type: string, format: date-time } }
+        - { name: limit, in: query, schema: { type: integer, default: 100, maximum: 500 } }
+      responses: { "200": { description: OK } }
+    post:
+      tags: [core]
+      summary: Публикация события (модули и сервисы ядра)
+      requestBody:
+        content: { application/json: { schema: { $ref: "#/components/schemas/BusEvent" } } }
+      responses: { "202": { description: "Принято шиной (at-least-once)" } }
+  /core/audit:
+    get:
+      tags: [core]
+      summary: Неизменяемый журнал аудита (WORM, hash-chain)
+      parameters:
+        - { name: user, in: query, schema: { type: string } }
+        - { name: action, in: query, schema: { type: string } }
+      responses: { "200": { description: OK } }
+  /core/storage:
+    get:
+      tags: [core]
+      summary: Коллекции хранилища и CRC32-контроль целостности
+      responses: { "200": { description: OK } }
+  /orgs:
+    get:
+      tags: [pass]
+      summary: Реестр организаций (поиск, фильтры type/status/region, полнота паспорта)
+      parameters:
+        - { name: q, in: query, schema: { type: string } }
+        - { name: type, in: query, schema: { type: string, enum: [ent, nio, test] } }
+        - { name: status, in: query, schema: { type: string, enum: [draft, pending, verified] } }
+        - { name: region, in: query, schema: { type: string } }
+        - { name: page, in: query, schema: { type: integer, default: 1 } }
+      responses: { "200": { description: OK } }
+    post:
+      tags: [pass]
+      summary: Регистрация предприятия (ИВП-1, шаг 1)
+      responses: { "201": { description: "Черновик создан; событие passport.draft_created" } }
+  /orgs/{orgId}:
+    parameters: [ { name: orgId, in: path, required: true, schema: { type: string, pattern: "^E[0-9]{2,4}$" } } ]
+    get:
+      tags: [pass]
+      summary: Карточка организации
+      responses: { "200": { description: OK }, "404": { $ref: "#/components/responses/NotFound" } }
+  /orgs/{orgId}/passport:
+    parameters: [ { name: orgId, in: path, required: true, schema: { type: string } } ]
+    get:
+      tags: [pass]
+      summary: Паспорт — 12 разделов, 92 поля (спецификация Прил. 2), полнота по порогам Прил. 2.14
+      responses: { "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/Passport" } } } } }
+    put:
+      tags: [pass]
+      summary: Сохранение полей (создает новую версию паспорта)
+      requestBody:
+        content: { application/json: { schema: { type: object, additionalProperties: { type: string } } } }
+      responses:
+        "200": { description: "Версия сохранена; события passport.updated → profile.updated → twin.rebuilt → geo.data_updated" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "422": { description: "Ошибка валидации (обязательные поля, ИНН/ОГРН ФНС)" }
+  /orgs/{orgId}/passport/versions:
+    parameters: [ { name: orgId, in: path, required: true, schema: { type: string } } ]
+    get:
+      tags: [pass]
+      summary: Журнал версий паспорта (≥10 версий, CRC32 снимков)
+      responses: { "200": { description: OK } }
+  /orgs/{orgId}/passport/quality:
+    parameters: [ { name: orgId, in: path, required: true, schema: { type: string } } ]
+    post:
+      tags: [pass]
+      summary: Контроль качества (ИНН/ОГРН ФНС, полнота ≥95%, пороги разделов, статус)
+      responses: { "200": { description: "Отчет о замечаниях; событие pass.quality_ok/issues" } }
+  /orgs/{orgId}/verify:
+    parameters: [ { name: orgId, in: path, required: true, schema: { type: string } } ]
+    post:
+      tags: [pass]
+      summary: Отправка на верификацию / верификация (роли L5/L7, MOD-EXPERT)
+      responses: { "200": { description: "passport.pending_verification / passport.verified" }, "403": { $ref: "#/components/responses/Forbidden" } }
+  /orgs/{orgId}/profile:
+    parameters: [ { name: orgId, in: path, required: true, schema: { type: string } } ]
+    get:
+      tags: [prof]
+      summary: Профиль — радар (7 измерений), TRL/MRL/IRL, индекс I, разрывы, бенчмарки отрасли
+      responses: { "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/Profile" } } } } }
+  /orgs/{orgId}/twin:
+    parameters: [ { name: orgId, in: path, required: true, schema: { type: string } } ]
+    get:
+      tags: [prof]
+      summary: Цифровой двойник (CRC32-снимок паспорта + производные метрики)
+      responses: { "200": { description: OK } }
+    post:
+      tags: [prof]
+      summary: Пересборка двойника (событие twin.rebuilt)
+      responses: { "202": { description: Принято } }
+  /projects:
+    get:
+      tags: [niokr]
+      summary: Портфель НИОКР (этапы 0–8, контрольные точки, SPI)
+      responses: { "200": { description: OK } }
+    post:
+      tags: [niokr]
+      summary: Регистрация проекта НИОКР (niokr.created)
+      responses: { "201": { description: Создан } }
+  /projects/{projectId}/gate:
+    parameters: [ { name: projectId, in: path, required: true, schema: { type: string } } ]
+    post:
+      tags: [niokr]
+      summary: Решение контрольной точки Go/No-Go/ревью (ИВП-3)
+      requestBody:
+        content: { application/json: { schema: { type: object, properties: { decision: { type: string, enum: [go, no-go, review] }, comment: { type: string } }, required: [decision] } } }
+      responses:
+        "200": { description: "niokr.stage_completed / niokr.stage_failed / niokr.stage_review_pending" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /projects/{projectId}/evm:
+    parameters: [ { name: projectId, in: path, required: true, schema: { type: string } } ]
+    get:
+      tags: [niokr]
+      summary: EVM-показатели (PV/EV/AC/SPI/CPI) и PERT-оценка этапа
+      responses: { "200": { description: OK } }
+  /geo/objects:
+    get:
+      tags: [geo]
+      summary: Геообъекты (GeoJSON; фильтры type/trl/region; кластеризация H3 при zoom<threshold)
+      parameters:
+        - { name: format, in: query, schema: { type: string, enum: [geojson, kml], default: geojson } }
+        - { name: bbox, in: query, schema: { type: string }, description: "minlon,minlat,maxlon,maxlat" }
+      responses: { "200": { description: OK } }
+  /geo/heatmap:
+    get:
+      tags: [geo]
+      summary: Тепловая карта (KDE) — 6 компетенций / TRL / инвестиции / риски
+      parameters:
+        - { name: layer, in: query, required: true, schema: { type: string, enum: [sci, des, prod, test, dig, mng, trl, invest, risk] } }
+        - { name: resolution, in: query, schema: { type: string, default: "1km" } }
+      responses: { "200": { description: "Растр/векторный слой (ИВП-GEO-2, ≤ 3 с)" } }
+  /reports:
+    post:
+      tags: [reports]
+      summary: Формирование отчета (ИВП-6, ≤ 5 с)
+      requestBody:
+        content: { application/json: { schema: { type: object, properties: { type: { type: string }, period: { type: string }, format: { type: string, enum: [pdf, docx, xlsx, web] }, sections: { type: array, items: { type: string } } } } } }
+      responses: { "201": { description: "report.generated; регистрация в MOD-DOC" } }
+  /reports/{reportId}/export:
+    parameters: [ { name: reportId, in: path, required: true, schema: { type: string } } ]
+    get:
+      tags: [reports]
+      summary: Выгрузка файла отчета
+      responses: { "200": { description: "application/octet-stream" } }
+  /integrations/status:
+    get:
+      tags: [int]
+      summary: Статусы каналов 28 внешних систем (по варианту А/Б)
+      responses: { "200": { description: OK } }
+  /integrations/asspr/import:
+    post:
+      tags: [int]
+      summary: Импорт цифрового паспорта из АССПР (валидация ФНС → БД MOD-PASS → профиль → двойник)
+      requestBody:
+        content: { application/json: { schema: { $ref: "#/components/schemas/AssprPackage" } } }
+      responses:
+        "200": { description: "int.import_completed; цепочка ИВП-1/2/GEO-1" }
+        "422": { description: "Отчет валидации с замечаниями" }
+components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }
+  responses:
+    Unauthorized: { description: "Не аутентифицирован" }
+    Forbidden: { description: "Запрещено политикой IAM (RBAC/ABAC); событие iam.access_denied" }
+    NotFound: { description: "Объект не найден" }
+  schemas:
+    LoginRequest:
+      type: object
+      properties:
+        login: { type: string }
+        password: { type: string, format: password }
+        mfa_code: { type: string }
+        variant: { type: string, enum: [network, autonomous] }
+      required: [login, password]
+    TokenPair:
+      type: object
+      properties:
+        access_token: { type: string }
+        refresh_token: { type: string }
+        role_level: { type: string, enum: [L0, L1, L2, L3, L4, L5, L6, L7] }
+        org_id: { type: string, nullable: true, description: "Для L4 — собственное предприятие (ABAC)" }
+    Module:
+      type: object
+      properties:
+        code: { type: string, example: MOD-PASS }
+        name: { type: string }
+        required: { type: boolean }
+        version: { type: string, example: 4.0.3 }
+        deps: { type: array, items: { type: string } }
+        status: { type: string, enum: [active, disabled, degraded, error] }
+    BusEvent:
+      type: object
+      properties:
+        type: { type: string, example: profile.updated }
+        source: { type: string, example: MOD-PROF }
+        payload: { type: string }
+        sev: { type: string, enum: [info, warn, alert], default: info }
+      required: [type, source]
+    Passport:
+      type: object
+      properties:
+        org_id: { type: string }
+        status: { type: string, enum: [draft, pending, verified] }
+        version_n: { type: integer }
+        crc32: { type: string, example: "0xb815e9a1" }
+        fill_total: { type: integer, minimum: 0, maximum: 100 }
+        sections:
+          type: array
+          items:
+            type: object
+            properties:
+              n: { type: integer }
+              name: { type: string }
+              threshold: { type: integer, description: "Порог полноты (Прил. 2.14)" }
+              fill: { type: integer }
+              fields:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name: { type: string }
+                    ftype: { type: string, enum: [Текст, Число, Список, Файлы, Справочник, Матрица, Ссылки, Журнал] }
+                    required: { type: boolean }
+                    source: { type: string }
+                    value: { type: string, nullable: true }
+                    filled: { type: boolean }
+    Profile:
+      type: object
+      properties:
+        org_id: { type: string }
+        radar: { type: array, items: { type: integer }, minItems: 7, maxItems: 7 }
+        trl: { type: integer, minimum: 1, maximum: 9 }
+        mrl: { type: integer, minimum: 1, maximum: 10 }
+        irl: { type: integer, minimum: 1, maximum: 9 }
+        maturity_index: { type: number, example: 78.2 }
+        gaps: { type: array, items: { type: string } }
+        benchmarks: { type: object, additionalProperties: true }
+    AssprPackage:
+      type: object
+      description: Пакет «Цифрового паспорта НТП» из АССПР v2.4
+      properties:
+        package_id: { type: string, example: АССПР-2026-0142 }
+        org_name: { type: string }
+        target_org_id: { type: string, nullable: true }
+        inn: { type: string, pattern: "^[0-9]{10}$" }
+        ogrn: { type: string, pattern: "^[0-9]{13}$" }
+        approval: { type: string }
+        completeness: { type: integer, minimum: 0, maximum: 100 }
+        sections_fill: { type: array, items: { type: integer }, minItems: 12, maxItems: 12 }
+        competencies: { type: object, additionalProperties: { type: integer } }
+        trl: { type: integer }
+        mrl: { type: integer }
+        irl: { type: integer }

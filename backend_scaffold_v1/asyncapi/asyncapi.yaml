@@ -1,0 +1,126 @@
+asyncapi: 2.6.0
+info:
+  title: АИС «Техноконтур» — шина событий ядра
+  version: 1.0.0
+  description: >
+    Каталог событий (ТЗ п.4.4/4.5, Приложение 9). Канонический перечень типов событий,
+    проверенный на интерактивном прототипе v8.0.0 (тикер шины и монитор ИВП).
+    Транспорт: Kafka (вариант А) / Redis Streams (вариант Б). Доставка at-least-once,
+    ошибочные сообщения — в DLQ-топик tc.events.dlq. Все модули публикуют и подписываются
+    только через шину ядра; прямое взаимодействие модулей запрещено.
+defaultContentType: application/json
+channels:
+  passport.draft_created:
+    publish: { summary: "Черновик паспорта создан (анкета 12 разделов)", message: { $ref: "#/components/messages/Event" } }
+  passport.created:
+    publish: { summary: "Паспорт сформирован (ИВП-1, шаг 6)", message: { $ref: "#/components/messages/Event" } }
+  passport.pending_verification:
+    publish: { summary: "Паспорт направлен на верификацию (очередь MOD-EXPERT)", message: { $ref: "#/components/messages/Event" } }
+  passport.verified:
+    publish:
+      summary: "Паспорт подтвержден (ЭЦП верификатора); триггер ИВП-2"
+      message: { $ref: "#/components/messages/Event" }
+    subscribe: { summary: "MOD-PROF, MOD-GEO подписаны" }
+  passport.updated:
+    publish: { summary: "Паспорт обновлен (новая версия, импорт АССПР)", message: { $ref: "#/components/messages/Event" } }
+  passport.exported:
+    publish: { summary: "Экспорт паспорта (DOCX/XLSX/PDF)", message: { $ref: "#/components/messages/Event" } }
+  pass.quality_ok:
+    publish: { summary: "Контроль качества без замечаний", message: { $ref: "#/components/messages/Event" } }
+  pass.quality_issues:
+    publish: { summary: "Контроль качества: замечания (ИНН/полнота/пороги 2.14)", message: { $ref: "#/components/messages/Event" } }
+  profile.updated:
+    publish:
+      summary: "Профиль пересчитан (ИВП-2); триггер ИВП-GEO-1 и пересборки двойника"
+      message: { $ref: "#/components/messages/Event" }
+    subscribe: { summary: "MOD-GEO, MOD-COOP, MOD-AI подписаны" }
+  twin.rebuilt:
+    publish: { summary: "Цифровой двойник пересобран (CRC32-снимок)", message: { $ref: "#/components/messages/Event" } }
+  niokr.created:
+    publish: { summary: "Проект НИОКР зарегистрирован", message: { $ref: "#/components/messages/Event" } }
+  niokr.milestone_reached:
+    publish: { summary: "Достигнута контрольная точка этапа", message: { $ref: "#/components/messages/Event" } }
+  niokr.stage_completed:
+    publish: { summary: "Этап завершен (решение Go)", message: { $ref: "#/components/messages/Event" } }
+  niokr.stage_failed:
+    publish: { summary: "Этап провален (решение No-Go); уведомление MOD-STIM", message: { $ref: "#/components/messages/Event" } }
+  niokr.stage_review_pending:
+    publish: { summary: "Этап направлен на независимую экспертизу", message: { $ref: "#/components/messages/Event" } }
+  cooperation.recommendations_ready:
+    publish: { summary: "Матчинг кооперации готов (ИВП-4)", message: { $ref: "#/components/messages/Event" } }
+  cooperation.created:
+    publish: { summary: "Консорциум создан; граф связей обновлен", message: { $ref: "#/components/messages/Event" } }
+  geo.data_updated:
+    publish: { summary: "Геоданные обновлены (ИВП-GEO-1, ≤ 2 с)", message: { $ref: "#/components/messages/Event" } }
+  geo.heatmap_built:
+    publish: { summary: "Тепловая карта сформирована (ИВП-GEO-2, ≤ 3 с)", message: { $ref: "#/components/messages/Event" } }
+  geo.links_built:
+    publish: { summary: "Граф кооперационных цепочек построен (ИВП-GEO-3)", message: { $ref: "#/components/messages/Event" } }
+  geo.export:
+    publish: { summary: "Экспорт геоданных (GeoJSON/KML/Shapefile)", message: { $ref: "#/components/messages/Event" } }
+  expert.assigned:
+    publish: { summary: "Эксперт назначен (группа ≥ 3 чел.)", message: { $ref: "#/components/messages/Event" } }
+  expert.conclusion_ready:
+    publish: { summary: "Заключение экспертизы готово (ЭЦП)", message: { $ref: "#/components/messages/Event" } }
+  ai.recommendations_ready:
+    publish: { summary: "ИИ-прогноз готов (confidence ≥ 0.7, XAI)", message: { $ref: "#/components/messages/Event" } }
+  ai.recommendation_accepted:
+    publish: { summary: "Рекомендация принята оператором", message: { $ref: "#/components/messages/Event" } }
+  risk.alert:
+    publish: { summary: "Алерт риска (красная зона P×В ≥ 16 — эскалация)", message: { $ref: "#/components/messages/Event" } }
+  kpi.threshold_breached:
+    publish: { summary: "Порог KPI превышен", message: { $ref: "#/components/messages/Event" } }
+  report.generated:
+    publish: { summary: "Отчет сформирован (ИВП-6, ≤ 5 с)", message: { $ref: "#/components/messages/Event" } }
+  report.exported:
+    publish: { summary: "Отчет выгружен (PDF/DOCX/XLSX)", message: { $ref: "#/components/messages/Event" } }
+  doc.registered:
+    publish: { summary: "Документ зарегистрирован в реестре MOD-DOC", message: { $ref: "#/components/messages/Event" } }
+  doc.accessed:
+    publish: { summary: "Карточка документа просмотрена", message: { $ref: "#/components/messages/Event" } }
+  int.sync_started:
+    publish: { summary: "Сеанс синхронизации с внешними системами (вариант А)", message: { $ref: "#/components/messages/Event" } }
+  int.sync_completed:
+    publish: { summary: "Синхронизация завершена (ФНС/ГИСП/Роспатент/ЕИС)", message: { $ref: "#/components/messages/Event" } }
+  int.import_started:
+    publish: { summary: "Импорт пакета начат (ручной/АССПР)", message: { $ref: "#/components/messages/Event" } }
+  int.import_validation:
+    publish: { summary: "Валидация пакета (ИНН/ОГРН ФНС, полнота, согласование)", message: { $ref: "#/components/messages/Event" } }
+  int.import_completed:
+    publish: { summary: "Импорт завершен; запись в БД MOD-PASS", message: { $ref: "#/components/messages/Event" } }
+  module.enabled:
+    publish: { summary: "Модуль подключен (горячее подключение)", message: { $ref: "#/components/messages/Event" } }
+  module.disabled:
+    publish: { summary: "Модуль отключен (graceful degradation, каскад зависимых)", message: { $ref: "#/components/messages/Event" } }
+  iam.login:
+    publish: { summary: "Сеанс установлен (роль, вариант)", message: { $ref: "#/components/messages/Event" } }
+  iam.access_denied:
+    publish: { summary: "Отказ в доступе (RBAC/ABAC); фиксация в аудите", message: { $ref: "#/components/messages/Event" } }
+  core.started:
+    publish: { summary: "Ядро запущено (норматив ≤ 30 с)", message: { $ref: "#/components/messages/Event" } }
+  core.healthcheck:
+    publish: { summary: "Опрос модулей (heartbeat, latency)", message: { $ref: "#/components/messages/Event" } }
+  db.exported:
+    publish: { summary: "Снимок хранилища экспортирован (L7)", message: { $ref: "#/components/messages/Event" } }
+components:
+  messages:
+    Event:
+      name: BusEvent
+      title: Событие шины
+      summary: Унифицированный конверт события (как в прототипе v8)
+      contentType: application/json
+      headers:
+        type: object
+        properties:
+          trace_id: { type: string, format: uuid }
+          partition_key: { type: string, description: "org_id / project_id — порядок обработки по объекту" }
+      payload:
+        type: object
+        required: [id, ts, type, source]
+        properties:
+          id: { type: integer, format: int64, description: "Монотонный номер события в журнале" }
+          ts: { type: string, format: date-time }
+          type: { type: string, example: profile.updated }
+          source: { type: string, example: MOD-PROF, description: "Модуль или сервис ядра" }
+          payload: { type: string, description: "Краткие данные (JSON-строка)" }
+          sev: { type: string, enum: [info, warn, alert], default: info }
