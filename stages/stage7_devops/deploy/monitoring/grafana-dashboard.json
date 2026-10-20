@@ -1,0 +1,23 @@
+{
+  "title": "АИС «Техноконтур» — ядро и модули",
+  "uid": "tc-core",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "10s",
+  "time": {"from": "now-3h", "to": "now"},
+  "panels": [
+    {"id": 1, "type": "stat", "title": "Uptime ядра, ч", "gridPos": {"h": 4, "w": 4, "x": 0, "y": 0},
+     "targets": [{"expr": "tc_uptime_seconds / 3600", "refId": "A"}]},
+    {"id": 2, "type": "stat", "title": "Модулей активно (из 15)", "gridPos": {"h": 4, "w": 4, "x": 4, "y": 0},
+     "targets": [{"expr": "tc_modules_active", "refId": "A"}],
+     "thresholds": {"mode": "absolute", "steps": [{"color": "red", "value": null}, {"color": "yellow", "value": 9}, {"color": "green", "value": 15}]}},
+    {"id": 3, "type": "stat", "title": "Деградировано", "gridPos": {"h": 4, "w": 4, "x": 8, "y": 0},
+     "targets": [{"expr": "tc_modules_degraded", "refId": "A"}]},
+    {"id": 4, "type": "stat", "title": "Организаций в реестре", "gridPos": {"h": 4, "w": 4, "x": 12, "y": 0},
+     "targets": [{"expr": "tc_organizations_total", "refId": "A"}]},
+    {"id": 5, "type": "timeseries", "title": "События шины (всего)", "gridPos": {"h": 8, "w": 12, "x": 0, "y": 4},
+     "targets": [{"expr": "rate(tc_events_total[5m]) * 300", "legendFormat": "событий/5мин", "refId": "A"}]},
+    {"id": 6, "type": "timeseries", "title": "Записи WORM-аудита", "gridPos": {"h": 8, "w": 12, "x": 12, "y": 4},
+     "targets": [{"expr": "rate(tc_audit_records_total[5m]) * 300", "legendFormat": "записей/5мин", "refId": "A"}]}
+  ]
+}

@@ -1,0 +1,205 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: technocontour
+  labels:
+    app.kubernetes.io/part-of: ais-technocontour
+    variant: network        # вариант Б — отдельный кластер внутри контура (air-gap)
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tc-config
+  namespace: technocontour
+data:
+  TC_VARIANT: "network"
+  TC_BUS_BACKEND: "redis"
+  TC_REDIS_URL: "redis://tc-redis:6379/0"
+  TC_DATABASE_URL: "postgresql+psycopg://tc_app@tc-postgres:5432/technocontour"
+  TC_MINIO_ENDPOINT: "tc-minio:9000"
+  TC_CONNECTORS_MODE: "sandbox"
+  TC_GEO_TILE_URL_AUTONOMOUS: "http://tiles.contour.internal/{z}/{x}/{y}.png"
+  TC_RATE_LIMIT_PER_MINUTE: "240"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: tc-secrets
+  namespace: technocontour
+type: Opaque
+stringData:
+  # ВАЖНО: в production — внешний секрет-стор (Vault/Инфиниспан); вариант Б — СКЗИ-хранилище ключей
+  TC_JWT_SECRET: "CHANGE_ME_32+_BYTES_RANDOM"
+  TC_DB_PASSWORD: "CHANGE_ME"
+  TC_MINIO_PASSWORD: "CHANGE_ME"
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: tc-postgres
+  namespace: technocontour
+spec:
+  serviceName: tc-postgres
+  replicas: 1               # production: Patroni-кластер (3 узла, синхронная репликация, RPO ≤ 1ч)
+  selector:
+    matchLabels: {app: tc-postgres}
+  template:
+    metadata:
+      labels: {app: tc-postgres}
+    spec:
+      containers:
+        - name: postgres
+          image: postgis/postgis:16-3.4      # production: Postgres Pro Enterprise
+          env:
+            - {name: POSTGRES_DB, value: technocontour}
+            - {name: POSTGRES_USER, value: tc_app}
+            - name: POSTGRES_PASSWORD
+              valueFrom: {secretKeyRef: {name: tc-secrets, key: TC_DB_PASSWORD}}
+          ports: [{containerPort: 5432}]
+          volumeMounts: [{name: pgdata, mountPath: /var/lib/postgresql/data}]
+          resources:
+            requests: {cpu: "500m", memory: 1Gi}
+            limits: {cpu: "2", memory: 4Gi}
+  volumeClaimTemplates:
+    - metadata: {name: pgdata}
+      spec:
+        accessModes: [ReadWriteOnce]
+        resources: {requests: {storage: 50Gi}}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: tc-postgres, namespace: technocontour}
+spec:
+  selector: {app: tc-postgres}
+  ports: [{port: 5432}]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: tc-redis, namespace: technocontour}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: tc-redis}}
+  template:
+    metadata: {labels: {app: tc-redis}}
+    spec:
+      containers:
+        - name: redis
+          image: redis:7-alpine
+          args: ["redis-server", "--appendonly", "yes"]
+          ports: [{containerPort: 6379}]
+---
+apiVersion: v1
+kind: Service
+metadata: {name: tc-redis, namespace: technocontour}
+spec:
+  selector: {app: tc-redis}
+  ports: [{port: 6379}]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tc-backend
+  namespace: technocontour
+  labels: {app: tc-backend}
+spec:
+  replicas: 3               # API Gateway без состояния — горизонтальное масштабирование
+  selector: {matchLabels: {app: tc-backend}}
+  template:
+    metadata:
+      labels: {app: tc-backend}
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+        - name: backend
+          image: registry.contour.internal/technocontour/backend:1.0.0
+          envFrom:
+            - configMapRef: {name: tc-config}
+            - secretRef: {name: tc-secrets}
+          ports: [{containerPort: 8000}]
+          readinessProbe:
+            httpGet: {path: /api/v1/core/health, port: 8000}
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: {path: /api/v1/core/health, port: 8000}
+            initialDelaySeconds: 30
+            periodSeconds: 20
+          resources:
+            requests: {cpu: 500m, memory: 512Mi}
+            limits: {cpu: "2", memory: 2Gi}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: tc-backend, namespace: technocontour}
+spec:
+  selector: {app: tc-backend}
+  ports: [{port: 8000}]
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata: {name: tc-backend-hpa, namespace: technocontour}
+spec:
+  scaleTargetRef: {apiVersion: apps/v1, kind: Deployment, name: tc-backend}
+  minReplicas: 3
+  maxReplicas: 12
+  metrics:
+    - type: Resource
+      resource: {name: cpu, target: {type: Utilization, averageUtilization: 70}}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: tc-frontend, namespace: technocontour}
+spec:
+  replicas: 2
+  selector: {matchLabels: {app: tc-frontend}}
+  template:
+    metadata: {labels: {app: tc-frontend}}
+    spec:
+      containers:
+        - name: nginx
+          image: registry.contour.internal/technocontour/frontend:12.0.0
+          ports: [{containerPort: 80}]
+---
+apiVersion: v1
+kind: Service
+metadata: {name: tc-frontend, namespace: technocontour}
+spec:
+  selector: {app: tc-frontend}
+  ports: [{port: 80}]
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: tc-ingress
+  namespace: technocontour
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-protocols: "TLSv1.2 TLSv1.3"
+    nginx.ingress.kubernetes.io/proxy-body-size: 64m
+    nginx.ingress.kubernetes.io/limit-rpm: "240"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts: [technocontour.example.ru]
+      secretName: tc-tls
+  rules:
+    - host: technocontour.example.ru
+      http:
+        paths:
+          - {path: /api, pathType: Prefix, backend: {service: {name: tc-backend, port: {number: 8000}}}}
+          - {path: /, pathType: Prefix, backend: {service: {name: tc-frontend, port: {number: 80}}}}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: tc-deny-external-db, namespace: technocontour}
+spec:
+  podSelector:
+    matchLabels: {app: tc-postgres}
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels: {app: tc-backend}
+      ports: [{port: 5432}]

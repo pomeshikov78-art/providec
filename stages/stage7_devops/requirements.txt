@@ -1,0 +1,15 @@
+fastapi>=0.111
+uvicorn[standard]>=0.30
+sqlalchemy>=2.0
+pydantic>=2.7
+pydantic-settings>=2.2
+PyJWT>=2.8
+redis>=5.0
+python-docx>=1.1
+openpyxl>=3.1
+reportlab>=4.1
+h3>=4.0
+geographiclib>=2.0
+pyotp>=2.9
+httpx>=0.27
+pytest>=8.0

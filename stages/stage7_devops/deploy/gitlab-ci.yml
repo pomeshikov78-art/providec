@@ -1,0 +1,98 @@
+# АИС «Техноконтур» — GitLab CI/CD (Фаза 0 плана: CI/CD с тестами и SAST)
+stages: [lint, test, sast, build, deploy]
+
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.pip-cache"
+  IMAGE_BACKEND: "$CI_REGISTRY_IMAGE/backend"
+  IMAGE_FRONTEND: "$CI_REGISTRY_IMAGE/frontend"
+
+default:
+  image: python:3.11-slim
+
+cache:
+  paths: [.pip-cache]
+
+# ---------------- lint ----------------
+ruff:
+  stage: lint
+  before_script: [pip install -q ruff]
+  script: [ruff check backend/app --select E,F,W --ignore E501 || true]   # E501: длинные строки допустимы
+  allow_failure: true
+
+openapi-validate:
+  stage: lint
+  before_script: [pip install -q pyyaml]
+  script:
+    - python -c "import yaml; yaml.safe_load(open('backend_scaffold_v1/openapi.yaml')); yaml.safe_load(open('backend_scaffold_v1/asyncapi.yaml')); yaml.safe_load(open('deploy/docker-compose.yml')); yaml.safe_load(open('deploy/k8s/technocontour.yaml')); print('YAML/спецификации валидны')"
+
+js-syntax:
+  stage: lint
+  image: node:20-alpine
+  script:
+    - node --check src/app.js
+    - node --check src/server.js
+
+# ---------------- test ----------------
+pytest:
+  stage: test
+  before_script:
+    - pip install -q -r backend/requirements.txt
+  script:
+    - cd backend && python -m pytest tests/ -q --junitxml=../report.xml
+  artifacts:
+    when: always
+    reports: {junit: report.xml}
+    paths: [backend/.coverage]
+  coverage: '/(\d+)%/'
+
+frontend-dom:
+  stage: test
+  image: node:20
+  script:
+    - cd /tmp && npm init -y >/dev/null && npm install jsdom --no-audit --no-fund >/dev/null 2>&1
+    - node "$CI_PROJECT_DIR/src/test_dom.js" "$CI_PROJECT_DIR/ais_providets.html"
+
+# ---------------- SAST (ФСТЭК: статический анализ кода) ----------------
+bandit:
+  stage: sast
+  before_script: [pip install -q bandit]
+  script: [bandit -r backend/app -ll -q || true]
+  allow_failure: true
+
+# ---------------- build ----------------
+build-backend:
+  stage: build
+  image: docker:27
+  services: [docker:27-dind]
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build -t $IMAGE_BACKEND:$CI_COMMIT_SHORT_SHA -t $IMAGE_BACKEND:latest backend/
+    - docker push $IMAGE_BACKEND:$CI_COMMIT_SHORT_SHA && docker push $IMAGE_BACKEND:latest
+  rules: [{if: '$CI_COMMIT_BRANCH == "main" || $CI_COMMIT_TAG'}]
+
+build-frontend:
+  stage: build
+  image: docker:27
+  services: [docker:27-dind]
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build -t $IMAGE_FRONTEND:$CI_COMMIT_SHORT_SHA -f frontend/Dockerfile .
+    - docker push $IMAGE_FRONTEND:$CI_COMMIT_SHORT_SHA
+  rules: [{if: '$CI_COMMIT_BRANCH == "main" || $CI_COMMIT_TAG'}]
+
+# ---------------- deploy ----------------
+deploy-dev:
+  stage: deploy
+  image: bitnami/kubectl:1.30
+  script:
+    - kubectl -n technocontour-dev set image deployment/tc-backend backend=$IMAGE_BACKEND:$CI_COMMIT_SHORT_SHA || kubectl apply -f deploy/k8s/technocontour.yaml
+  environment: {name: dev}
+  rules: [{if: '$CI_COMMIT_BRANCH == "main"'}]
+
+deploy-prod:
+  stage: deploy
+  image: bitnami/kubectl:1.30
+  script:
+    - kubectl -n technocontour set image deployment/tc-backend backend=$IMAGE_BACKEND:$CI_COMMIT_TAG
+  environment: {name: production}
+  rules: [{if: '$CI_COMMIT_TAG', when: manual}]   # prod — только вручную по тегу (релиз)
