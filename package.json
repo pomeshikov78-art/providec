@@ -1,0 +1,18 @@
+{
+  "name": "providets-tooling",
+  "version": "101.0.0",
+  "private": true,
+  "description": "Инструменты тестирования клиента АИС «Техноконтур» (шифр «Провидец»). Артефакт поставки — единый HTML; эти зависимости НЕ входят в артефакт.",
+  "scripts": {
+    "wave0": "python3 src10/patch_v101.py",
+    "verify": "sh src10/verify_v101.sh",
+    "test:dom": "cd /tmp && node -e \"process.argv[2]=process.env.PWD+'/ais_providets_v101.html'; require(process.env.PWD+'/src10/test_dom_v101.js')\"",
+    "test:e2e": "playwright test --config tests/playwright.config.js",
+    "test:e2e:file": "playwright test --config tests/playwright.config.js --project=file",
+    "test:e2e:http": "playwright test --config tests/playwright.config.js --project=http"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.48.0",
+    "jsdom": "^25.0.0"
+  }
+}

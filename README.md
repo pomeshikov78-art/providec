@@ -1,5 +1,7 @@
 # АИС «Техноконтур» · шифр «Провидец» — providec
 
+[![CI](https://github.com/pomeshikov78-art/providec/actions/workflows/ci.yml/badge.svg)](https://github.com/pomeshikov78-art/providec/actions/workflows/ci.yml)
+
 Интерактивный прототип автоматизированной информационной системы поддержки принятия
 решений для работы с предприятиями отрасли телекоммуникаций, вычислительной техники
 и средств связи (ТЗ редакции 4.0). Архитектура «Ядро + Модули» (microkernel):
@@ -21,6 +23,8 @@
 | `src/` | Исходники клиентской ветки A (v13, Этап 7–8) — исторические; `assemble.sh` собирает v13 |
 | `src9/` | Этап 9: объединение веток → v100 (base v99 + серверный мост, DOM-тесты) |
 | `src10/` | **Этап 10: Волна 0 → v101** (сборка `patch_v101.py`, DOM-тесты, верификация) |
+| `tests/` | **E2E-каркас Playwright (п. 3.1 плана): 63 сценария × 2 стенда (file:// и http://)** |
+| `.github/workflows/ci.yml` | **CI (п. 3.4 плана): детерминизм сборки → верификация → jsdom → E2E → манифест SHA-256** |
 | `deploy/` | docker-compose, k8s, мониторинг, GitLab CI |
 | `manual_providets_v*.html`, `plan_providets_v1.html` | Руководство оператора, план разработки (36 мес.) |
 
@@ -35,6 +39,10 @@ python3 src10/patch_v101.py
 
 # статическая верификация по критериям приёмки Волны 0
 sh src10/verify_v101.sh
+
+# E2E-тесты (Playwright, 63 сценария × file:// и http://) — см. tests/README.md
+npm ci && npx playwright install --with-deps chromium
+npm run test:e2e
 
 # серверный режим (бэкенд FastAPI + SQLite)
 make install && make dev         # затем в клиенте включить «Серверный режим»: http://localhost:8000

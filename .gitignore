@@ -1,11 +1,17 @@
-# зависимости и артефакты тестов
+# зависимости инструментов тестирования (сами инструменты в артефакт поставки НЕ входят;
+# package-lock.json — наоборот, коммитится для воспроизводимого `npm ci` в CI)
 node_modules/
-package-lock.json
 __pycache__/
 *.pyc
 .pytest_cache/
 .venv/
 venv/
+
+# результаты тестов и отчёты
+test-results/
+playwright-report/
+blob-report/
+dist-manifest.sha256
 
 # локальные БД и журналы
 *.db

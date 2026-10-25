@@ -25,6 +25,9 @@ test-dom:           ## DOM-тесты клиента v101 (jsdom, 87 прове�
 	cd /tmp && NODE_PATH=$(or $(NODE_PATH),/home/user/testenv/node_modules) node -e \
 	  "process.argv[2]='$(CURDIR)/ais_providets_v101.html'; require('$(CURDIR)/src10/test_dom_v101.js')"
 
+test-e2e:           ## E2E-тесты клиента (Playwright, 63 сценария × file:// и http://; см. tests/README.md)
+	npx playwright test --config tests/playwright.config.js
+
 build:              ## ВНИМАНИЕ: конвейер src/ заморожен на v13 (исторический). Актуальная сборка — `make wave0`.
 	@echo "Конвейер src/assemble.sh соответствует исторической линейке v13 и НЕ собирает актуальный выпуск." >&2; \
 	 echo "Актуальная сборка: make wave0  (v100 -> v101, см. src10/README.md)." >&2; \
