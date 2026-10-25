@@ -590,9 +590,7 @@ button,.btn,.btn-primary,.icon-btn,.mtbtn,.role-btn{touch-action:manipulation}
 }
 
 </style>
-<meta name="providets-release-version" content="v97">
-<meta name="providets-release-version" content="v98">
-<meta name="providets-release-version" content="v99">
+<meta name="providets-release-version" content="v101.0.0">
 </head>
 <body>
 
@@ -611,7 +609,7 @@ button,.btn,.btn-primary,.icon-btn,.mtbtn,.role-btn{touch-action:manipulation}
       </svg>
       <div>
         <h1>АИС <b>«ТЕХНОКОНТУР»</b></h1>
-        <div style="font-size:11.5px;color:var(--tx3);letter-spacing:2.6px;text-transform:uppercase;margin-top:3px">Шифр темы «Провидец» · ТЗ 4.0 · программа v100.0.0</div>
+        <div id="loginVerLine" style="font-size:11.5px;color:var(--tx3);letter-spacing:2.6px;text-transform:uppercase;margin-top:3px">Шифр темы «Провидец» · ТЗ 4.0 · программа v101.0.0</div>
       </div>
     </div>
     <div class="login-sub">Автоматизированная информационная система поддержки принятия решений для работы с предприятиями отрасли
@@ -664,9 +662,9 @@ button,.btn,.btn-primary,.icon-btn,.mtbtn,.role-btn{touch-action:manipulation}
       <div id="bootLines" style="margin-top:9px;max-height:130px;overflow:hidden"></div>
     </div>
 
-    <div class="login-note">Демонстрационный прототип АИС «Техноконтур» (шифр «Провидец»), программа версии 100.0.0 по ТЗ версии 4.0. Архитектурный принцип «Ядро + Модули» представлен на уровне клиентского прототипа; данные в автономном демо-режиме модельные.
+    <div class="login-note">Демонстрационный прототип АИС «Техноконтур» (шифр «Провидец»), программа версии <span data-tc-ver="num">101.0.0</span> по ТЗ версии <span data-tc-ver="tz">4.0</span>. Архитектурный принцип «Ядро + Модули» представлен на уровне клиентского прототипа; данные в автономном демо-режиме модельные.
       Картографическая основа — условная схема (в промышленной версии: локальный тайл-сервер или согласованный картографический сервис).</div>
-    <div class="prototype-warning" role="note"><b>Важно:</b> выбор роли в локальном демо не является аутентификацией и не обеспечивает защиту данных. Реальный контроль доступа, аудит и хранение должны обеспечиваться сервером и инфраструктурой безопасности. Изменения в локальном демо хранятся только в памяти страницы и теряются при перезагрузке/закрытии; экспортируйте нужные данные перед выходом. В варианте Б внешние сетевые адреса блокируются клиентской проверкой, но гарантию физической изоляции обеспечивает только конфигурация сети/ОС; внешняя загрузка Leaflet из CDN запрещена; для карты нужны локальные файлы ./vendor/leaflet/leaflet.js и leaflet.css и локальный тайл-сервер.</div>
+    <div class="prototype-warning" role="note"><b>Важно:</b> выбор роли в локальном демо не является аутентификацией и не обеспечивает защиту данных. Реальный контроль доступа, аудит и хранение должны обеспечиваться сервером и инфраструктурой безопасности. Изменения в локальном демо хранятся только в памяти страницы и теряются при перезагрузке/закрытии; экспортируйте нужные данные перед выходом. В варианте Б внешние сетевые адреса блокируются клиентской проверкой, но гарантию физической изоляции обеспечивает только конфигурация сети/ОС; внешняя загрузка Leaflet из CDN запрещена; для карты используются локальные файлы ./vendor/leaflet/leaflet.js и leaflet.css (включены в поставку, начиная с v101) и локальный тайл-сервер.</div>
   </div>
 </div>
 
@@ -716,7 +714,7 @@ button,.btn,.btn-primary,.icon-btn,.mtbtn,.role-btn{touch-action:manipulation}
   </div>
 
   <!-- боковая навигация -->
-  <div id="sidebar"><div id="nav"></div></div>
+  <nav id="sidebar" aria-label="Основная навигация по страницам и модулям"><div id="nav"></div></nav>
 
   <!-- рабочая область -->
   <div id="main"></div>
@@ -765,7 +763,7 @@ button,.btn,.btn-primary,.icon-btn,.mtbtn,.role-btn{touch-action:manipulation}
   </div>
 </div>
 
-<div id="toasts"></div>
+<div id="toasts" role="status" aria-live="polite" aria-relevant="additions text"></div>
 
 <script>
 "use strict";
@@ -774,6 +772,118 @@ button,.btn,.btn-primary,.icon-btn,.mtbtn,.role-btn{touch-action:manipulation}
    ДЕМОНСТРАЦИОННАЯ ПРОГРАММА (прототип по ТЗ)
    Модельные данные. Все совпадения случайны.
    ============================================================ */
+
+/* ==================================================================
+   P3.1–P3.2 (v101.0.0 · Волна 0 плана улучшений): ЕДИНЫЙ ИСТОЧНИК ВЕРСИИ.
+   Все отчёты, экспорты, самопроверки и видимые версии читают значение
+   только отсюда. Ручная правка литералов версии в коде запрещена.
+   ================================================================== */
+const APP_VERSION=Object.freeze({major:101,minor:0,patch:0,str:"v101.0.0",num:"101.0.0",tz:"4.0",build:"v101",released:"26.10.2026"});
+function ver(){return APP_VERSION.str;}
+function verNum(){return APP_VERSION.num;}
+/* P3.7 (Волна 0.7): SRI (SHA-256, base64) для Leaflet 1.9.4 в CDN-режиме.
+   Значения вычисляются сборщиком из фактических файлов ./vendor/leaflet/,
+   которые поставляются в архиве для автономного варианта Б. */
+const TC_LEAFLET_SRI=Object.freeze({version:"1.9.4",js:"sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=",css:"sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=",
+  localPath:"./vendor/leaflet/",cdnBase:"https://unpkg.com/leaflet@1.9.4/dist/"});
+
+/* ================= P3.4 (v101 · Волна 0.4): ДОСТУПНЫЙ НЕБЛОКИРУЮЩИЙ ДИАЛОГ =================
+   Замена window.confirm/window.prompt: role="dialog", aria-modal, фокус-ловушка (Tab),
+   Esc — отмена, Enter — подтверждение (с учётом фокуса на «Отмене»), возврат фокуса.
+   Возвращает Promise: tcConfirm → true/false; tcPrompt → строка либо null. */
+function tcDialog(opts){
+  opts=opts||{};
+  return new Promise(function(resolve){
+    const hasInput=!!opts.input;
+    const prevFocus=document.activeElement;
+    const old=document.getElementById("tcDialog");if(old)old.remove();
+    const overlay=document.createElement("div");overlay.id="tcDialog";
+    overlay.style.cssText="position:fixed;inset:0;z-index:10060;background:rgba(2,6,23,.78);display:flex;align-items:center;justify-content:center;padding:16px;";
+    overlay.setAttribute("role","dialog");overlay.setAttribute("aria-modal","true");overlay.setAttribute("aria-labelledby","tcDialogTitle");
+    overlay.innerHTML='<div style="width:min(560px,100%);max-height:85vh;overflow:auto;background:var(--panel,#101827);color:var(--tx,#e5edf7);border:1px solid var(--bd,#334155);border-radius:14px;padding:18px;box-shadow:0 20px 80px #0008">'+
+      '<h2 id="tcDialogTitle" style="margin:0 0 10px;font-size:17px">'+esc(opts.title||"Подтверждение действия")+'</h2>'+
+      '<div style="font-size:13px;line-height:1.55;color:var(--tx2,#9ca3af);white-space:pre-wrap">'+esc(opts.message||"")+'</div>'+
+      (hasInput?'<label for="tcDlgInp" style="display:block;margin-top:12px;font-size:12.5px;color:var(--tx2,#9ca3af)">'+esc(opts.inputLabel||"Значение")+'</label>'+
+        '<input id="tcDlgInp" class="inp" type="text" autocomplete="'+esc(opts.inputAutocomplete||"off")+'"'+(opts.inputNumeric?' inputmode="numeric" pattern="[0-9]*"':"")+(opts.inputMaxlength?' maxlength="'+Number(opts.inputMaxlength)+'"':"")+' style="width:100%;margin-top:6px"'+(opts.inputPlaceholder?' placeholder="'+esc(opts.inputPlaceholder)+'"':"")+'>':"")+
+      '<div style="display:flex;justify-content:flex-end;gap:10px;margin-top:16px">'+
+      (opts.cancelText===null?"":'<button type="button" class="btn" id="tcDlgCancel">'+esc(opts.cancelText||"Отмена")+'</button>')+
+      '<button type="button" class="btn ac" id="tcDlgOk">'+esc(opts.okText||"OK")+'</button></div></div>';
+    document.body.appendChild(overlay);
+    const inp=hasInput?overlay.querySelector("#tcDlgInp"):null;
+    const okBtn=overlay.querySelector("#tcDlgOk");
+    const cancelBtn=overlay.querySelector("#tcDlgCancel");
+    let closed=false;
+    const cancelVal=function(){return hasInput?null:false;};
+    const okVal=function(){return hasInput?(inp?inp.value:null):true;};
+    const finish=function(val){
+      if(closed)return;closed=true;
+      document.removeEventListener("keydown",onKey,true);
+      overlay.remove();
+      if(prevFocus&&prevFocus.focus){try{prevFocus.focus();}catch(e){}}
+      resolve(val);
+    };
+    okBtn.addEventListener("click",function(){finish(okVal());});
+    if(cancelBtn)cancelBtn.addEventListener("click",function(){finish(cancelVal());});
+    overlay.addEventListener("click",function(e){if(e.target===overlay)finish(cancelVal());});
+    function focusables(){
+      return Array.prototype.slice.call(overlay.querySelectorAll('button,input,[tabindex]:not([tabindex="-1"])'))
+        .filter(function(el){return !el.disabled;});
+    }
+    function onKey(e){
+      if(e.key==="Escape"){e.preventDefault();e.stopPropagation();finish(cancelVal());return;}
+      if(e.key==="Enter"){
+        /* Enter не должен провоцировать глобальные обработчики (например, doLogin на экране входа) */
+        e.preventDefault();e.stopPropagation();
+        const ae=document.activeElement;
+        finish(ae&&ae.id==="tcDlgCancel"?cancelVal():okVal());
+        return;
+      }
+      if(e.key==="Tab"){
+        const f=focusables();if(!f.length)return;
+        const first=f[0],last=f[f.length-1];
+        if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}
+        else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
+      }
+    }
+    document.addEventListener("keydown",onKey,true);
+    setTimeout(function(){try{(inp||okBtn).focus();if(inp&&inp.select)inp.select();}catch(e){}},30);
+  });
+}
+function tcConfirm(title,message,okText){return tcDialog({title:title,message:message,okText:okText||"Продолжить",cancelText:"Отмена"});}
+function tcPrompt(title,message,label,opts){
+  const o=Object.assign({},opts||{});
+  o.title=title;o.message=message;o.input=true;o.inputLabel=label||"Значение";
+  return tcDialog(o);
+}
+
+/* ================= P3.6 (v101 · Волна 0.6): DEEP-LINKING (location.hash ↔ страница) =========
+   showPage() синхронизирует хэш (pushState, на file:// — fallback location.hash);
+   hashchange/popstate возвращают приложение на страницу из хэша; в киоск-режиме
+   хэш обновляется без накопления истории (replaceState). */
+const DL_LOCK={v:false};
+function parseHashPage(h){
+  const raw=String(h==null?location.hash:(h||"")).replace(/^#/,"");
+  if(!raw)return null;
+  const id=raw.split("?")[0].split("/")[0].toLowerCase();
+  if(!/^[a-z0-9_-]{1,32}$/.test(id))return null;
+  return (typeof RENDERERS!=="undefined"&&RENDERERS&&typeof RENDERERS[id]==="function")?id:null;
+}
+function deepLinkSync(p){
+  try{
+    if(!p)return;
+    const want="#"+p;
+    if(location.hash===want)return;
+    const replaceMode=DL_LOCK.v||(typeof kiosk!=="undefined"&&kiosk&&kiosk.on);
+    if(window.history&&history.pushState){
+      try{
+        if(replaceMode)history.replaceState({tcPage:p},"",want);
+        else history.pushState({tcPage:p},"",want);
+        return;
+      }catch(e){/* file://: pushState/replaceState могут быть запрещены — fallback ниже */}
+    }
+    DL_LOCK.v=true;location.hash=p;setTimeout(function(){DL_LOCK.v=false;},0);
+  }catch(e){DL_LOCK.v=false;}
+}
 
 /* ---------- Этапы жизненного цикла (Приложение 1.3) ---------- */
 const STAGES=[
@@ -1807,6 +1917,8 @@ function buildHelpIndex(){
   idx.push({c:"Внедрение (ТЗ п.11)",t:"Дорожная карта промышленной разработки",x:"Этапы 1–7: обследование → проектирование → ядро и базовые модули → пилот (≥ 10 предприятий) → опциональные модули → промышленная эксплуатация → автономный контур (ФСТЭК)",go:"showPage('roadmap')"});
   idx.push({c:"Внедрение (ТЗ п.11)",t:"Статус реализации прототипа",x:"Оценка готовности по компонентам ТЗ: прототип vs промышленная реализация, рекомендуемый стек",go:"showPage('roadmap')"});
   idx.push({c:"Паспорт (Приложение 2)",t:"92 поля 12 разделов паспорта",x:"Спецификация полей: тип, обязательность, источник; пороги полноты по разделам (2.14); редактирование и журнал версий",go:"showPage('pass')"});
+  /* P3.8 (v101): раздел «Что нового» в справочном центре */
+  idx.push({c:"Что нового · "+ver(),t:ver()+" — волна 0 плана улучшений: версия, доступность, deep-linking, офлайн-карта",x:"Единая константа APP_VERSION; тосты и навигация доступны скринридеру и клавиатуре; диалоги tcDialog вместо window.confirm/prompt (MFA, восстановление снимка); глубокие ссылки #страница и кнопка «назад»; Leaflet 1.9.4 в поставке (vendor/) c SRI для CDN; CHANGELOG.md",go:"showPage('about')"});
   return idx;
 }
 function openHelp(){
@@ -1847,7 +1959,7 @@ function runHelpAction(action){
   if((m=action.match(/^gotoModule\('([A-Z0-9-]+)'\)$/))){if(MODULES.some(x=>x.code===m[1]))gotoModule(m[1]);return;}
   if((m=action.match(/^helpTask\((\d+)\)$/))){const n=Number(m[1]);if(TASKS.some(x=>x.n===n))helpTask(n);return;}
   if((m=action.match(/^gotoIvp\('([A-Z0-9-]+)'\)$/))){if(IVPS.some(x=>x.id===m[1]))gotoIvp(m[1]);return;}
-  if((m=action.match(/^showPage\('(\w+)'\)$/))){if(["kpi","variants","geo","niokr"].includes(m[1]))showPage(m[1]);return;}
+  if((m=action.match(/^showPage\('(\w+)'\)$/))){if(["kpi","variants","geo","niokr","about"].includes(m[1]))showPage(m[1]);return;}
 }
 function helpTask(n){
   showPage("tasks");
@@ -2058,6 +2170,8 @@ function toggleTheme(){
 /* ================= ТОСТЫ ================= */
 function toast(msg,type,src){
   const w=$("#toasts");const d=document.createElement("div");d.className="toast "+(type||"");
+  /* P3.3 (v101): ошибочные тосты объявляются скринридером немедленно */
+  if(type==="err"||type==="error"){d.setAttribute("role","alert");d.setAttribute("aria-live","assertive");}
   d.innerHTML=esc(msg)+(src?'<div class="tt">'+esc(src)+" · "+now()+"</div>":"");
   w.appendChild(d);setTimeout(()=>{d.classList.add("out");setTimeout(()=>d.remove(),350);},4600);
   while(w.children.length>4)w.removeChild(w.firstChild);
@@ -2163,7 +2277,7 @@ function enterApp(){
   renderNav();
   if(state.role.id==="L4")state.selEnt=OWN_ORG.L4;
   if(state.role.id==="L3")state.selEnt="E03";
-  showPage("dashboard");
+  showPage(parseHashPage()||"dashboard"); /* P3.6: deep-link при входе */
   startClock();startSim();renderNotifList();
   publish("iam.login","CORE:IAM","Сеанс установлен: "+state.userName+" ("+state.role.id+"), вариант "+(state.variant==="network"?"А":"Б"));
   addAudit("Вход в систему (аутентификация)","IAM · сеанс "+Math.random().toString(36).slice(2,8),"Успех");
@@ -2213,7 +2327,7 @@ function renderNav(){
     items.forEach(it=>{
       if(state.role.id==="L0"&&["registry","bus","ivp","audit"].includes(it.p))return;
       const off=it.mod&&!modOn(it.mod);
-      h.push('<div class="nav-item'+(state.page===it.p?" active":"")+(off?" offmod":"")+'" onclick="showPage(\''+it.p+'\')" title="'+esc(it.t)+'">'+
+      h.push('<div class="nav-item'+(state.page===it.p?" active":"")+(off?" offmod":"")+'" data-page="'+it.p+'" role="button" tabindex="0"'+(state.page===it.p?' aria-current="page"':"")+' onclick="showPage(\''+it.p+'\')" title="'+esc(it.t)+'">'+
         it.ic+'<span>'+esc(it.t)+'</span>'+(it.mod?'<span class="dot'+(off?" off":"")+'"></span>':'')+'</div>');
     });
   });
@@ -2227,7 +2341,7 @@ const PAGE_MOD={reports:"MOD-REPORT",pass:"MOD-PASS",prof:"MOD-PROF",niokr:"MOD-
 const RENDERERS={};
 function showPage(p,silent){
   const mod=PAGE_MOD[p];
-  state.page=p;renderNav();
+  state.page=p;renderNav();deepLinkSync(p);
   const appEl=document.getElementById("app");if(appEl)appEl.classList.remove("navopen");
   const main=$("#main");
   if(mod&&!modOn(mod)){
@@ -2422,7 +2536,7 @@ RENDERERS.db=function(){
 const DB_SNAPSHOT_SCHEMA=1;
 const DB_SNAPSHOT_MAX_BYTES=20*1024*1024;
 function dbSnapshotPayload(){
-  return {schemaVersion:DB_SNAPSHOT_SCHEMA,system:"АИС «Техноконтур»",cipher:"«Провидец»",program:"v100.0.0",tz:"ред. 4.0",createdAt:new Date().toISOString(),variant:state.variant,
+  return {schemaVersion:DB_SNAPSHOT_SCHEMA,system:"АИС «Техноконтур»",cipher:"«Провидец»",program:ver(),tz:"ред. "+APP_VERSION.tz,createdAt:new Date().toISOString(),variant:state.variant,
     data:{ORGS,PROJECTS,RISKS,DOCS,STIMS,EXPERT_QUEUE,twin:state.twin,
       events:state.events.slice(0,200),audit:state.audit.slice(0,300)}};
 }
@@ -2530,9 +2644,9 @@ const TC_IMPORT_ACCEPTANCE_CASES=[
   {id:"IMP-11",title:"Искусственный отказ при обновлении индекса ORG_BY_ID",expected:"Проверить согласованность коллекции и индекса после rollback"},
   {id:"IMP-12",title:"Ошибка повторной проверки/смена роли перед commit",expected:"Операция прекращается до первого изменения живых данных"}
 ];
-function buildImportAcceptanceMatrix(){return {system:"АИС «Техноконтур» / «Провидец»",program:"v100.0.0",kind:"import-restore-acceptance-matrix",status:"planned_not_executed",generatedAt:new Date().toISOString(),cases:TC_IMPORT_ACCEPTANCE_CASES.map(x=>({...x,result:"NOT_RUN",evidence:null,defect:null})),limitations:["Матрица описывает требуемые сценарии, а не результаты реального браузерного испытания.","Все сценарии создаются со статусом NOT_RUN; их нельзя считать пройденными без сохранённых воспроизводимых доказательств.","CRC32 обнаруживает случайные изменения, но не подтверждает источник или цифровую подпись.","Rollback в браузере является best-effort; атомарность не гарантирована до прохождения fault-injection тестов в браузере.","IMP-09–IMP-12 требуют fault-injection в браузере и проверки всех коллекций/индексов; статический просмотр кода не заменяет испытание."]};}
+function buildImportAcceptanceMatrix(){return {system:"АИС «Техноконтур» / «Провидец»",program:ver(),kind:"import-restore-acceptance-matrix",status:"planned_not_executed",generatedAt:new Date().toISOString(),cases:TC_IMPORT_ACCEPTANCE_CASES.map(x=>({...x,result:"NOT_RUN",evidence:null,defect:null})),limitations:["Матрица описывает требуемые сценарии, а не результаты реального браузерного испытания.","Все сценарии создаются со статусом NOT_RUN; их нельзя считать пройденными без сохранённых воспроизводимых доказательств.","CRC32 обнаруживает случайные изменения, но не подтверждает источник или цифровую подпись.","Rollback в браузере является best-effort; атомарность не гарантирована до прохождения fault-injection тестов в браузере.","IMP-09–IMP-12 требуют fault-injection в браузере и проверки всех коллекций/индексов; статический просмотр кода не заменяет испытание."]};}
 let DB_LAST_SELF_TEST_REPORT=null;
-function dbExportImportAcceptanceMatrix(){const r=buildImportAcceptanceMatrix();const ok=downloadFile("providets_import_restore_acceptance_v100.json",JSON.stringify(r,null,2),"application/json;charset=utf-8");if(ok)toast("Матрица приёмки импорта экспортирована; все сценарии остаются NOT_RUN.","ok","CORE");return r;}
+function dbExportImportAcceptanceMatrix(){const r=buildImportAcceptanceMatrix();const ok=downloadFile("providets_import_restore_acceptance"+APP_VERSION.build+".json",JSON.stringify(r,null,2),"application/json;charset=utf-8");if(ok)toast("Матрица приёмки импорта экспортирована; все сценарии остаются NOT_RUN.","ok","CORE");return r;}
 function dbDownloadSelfTestReport(){
   if(!DB_LAST_SELF_TEST_REPORT){toast("Сначала выполните самодиагностику.","err","CORE");return;}
   const report={...DB_LAST_SELF_TEST_REPORT,exportedAt:new Date().toISOString(),note:"Локальный отчёт прототипа; не является заключением о промышленной готовности."};
@@ -2588,7 +2702,7 @@ function dbRunSelfTests(){
   });
   test("Сводный пакет P0 содержит ключевые артефакты и не подменяет NOT_RUN",()=>{
     const b=buildP0EvidenceBundleCore();
-    if(b.program!=="v100.0.0"||b.status!=="PROTOTYPE_EVIDENCE_BUNDLE_NOT_ACCEPTANCE")throw new Error("Некорректные метаданные сводного пакета");
+    if(b.program!==ver()||b.status!=="PROTOTYPE_EVIDENCE_BUNDLE_NOT_ACCEPTANCE")throw new Error("Некорректные метаданные сводного пакета");
     for(const k of ["liveStateIntegrity","p0Summary","importRestorePlan","airGapPlan"])if(!b.artifacts[k])throw new Error("Не хватает артефакта: "+k);
     for(const k of Object.keys(b.externalAcceptance))if(b.externalAcceptance[k]!=="NOT_RUN")throw new Error("Внешнее испытание ошибочно отмечено выполненным: "+k);
   });
@@ -2607,22 +2721,22 @@ function dbRunSelfTests(){
     if(!serialized.includes("[REDACTED]"))throw new Error("Нет маркера редактирования секретных полей");
   });
   test("Заголовок «О системе» и runtime-отчёты указывают текущую версию",()=>{
-    if(!RENDERERS.about.toString().includes("программа v100.0.0"))throw new Error("Заголовок раздела «О системе» содержит устаревшую версию");
-    if(buildP0EvidenceSummary().program!=="v100.0.0")throw new Error("Сводка P0 содержит устаревшую версию");
-    if(buildAirGapAcceptancePlan().program!=="v100.0.0")throw new Error("План Air-Gap содержит устаревшую версию");
+    if(!RENDERERS.about().includes("программа "+ver()))throw new Error("Заголовок раздела «О системе» содержит устаревую версию");
+    if(buildP0EvidenceSummary().program!==ver())throw new Error("Сводка P0 содержит устаревшую версию");
+    if(buildAirGapAcceptancePlan().program!==ver())throw new Error("План Air-Gap содержит устаревшую версию");
   });
   test("Сводка P0 явно маркирует невыполненные приёмочные испытания",()=>{
     const r=buildP0EvidenceSummary();
-    if(r.program!=="v100.0.0")throw new Error("Устаревшая версия сводки");
+    if(r.program!==ver())throw new Error("Устаревшая версия сводки");
     for(const k of ["browserE2E","serverIAMAPI","airGapNetworkEvidence","signedManifestVerification"])if(!r.checks[k]||r.checks[k].status!=="NOT_RUN")throw new Error("Невыполненное испытание не маркировано NOT_RUN: "+k);
     if(r.status!=="PROTOTYPE_EVIDENCE_SUMMARY_NOT_ACCEPTANCE")throw new Error("Сводка ошибочно выглядит как акт приёмки");
   });
   test("Версия в диагностических отчётах соответствует текущему выпуску",()=>{
     const p=buildAirGapAcceptancePlan();
-    if(p.program!=="v100.0.0")throw new Error("Отчёт Air-Gap содержит устаревшую версию: "+p.program);
+    if(p.program!==ver())throw new Error("Отчёт Air-Gap содержит устаревшую версию: "+p.program);
   });
   test("Live-метаданные снимка, Air-Gap и матрицы импорта согласованы",()=>{
-    const expected="v100.0.0";
+    const expected=ver();
     if(dbSnapshotPayload().program!==expected)throw new Error("Версия снимка не совпадает");
     if(buildAirGapAcceptancePlan().program!==expected)throw new Error("Версия плана Air-Gap не совпадает");
     if(buildImportAcceptanceMatrix().program!==expected)throw new Error("Версия матрицы импорта не совпадает");
@@ -2632,7 +2746,7 @@ function dbRunSelfTests(){
     if(got!==0xCBF43926)throw new Error("Ожидалось cbf43926, получено "+got.toString(16));
   });
   test("Метаданные нового снимка содержат актуальную версию программы",()=>{
-    if(dbSnapshotPayload().program!=="v100.0.0")throw new Error("Версия снимка не совпадает с актуальным выпуском");
+    if(dbSnapshotPayload().program!==ver())throw new Error("Версия снимка не совпадает с актуальным выпуском");
   });
   test("Лимит размера файла снимка задан как 20 МиБ",()=>{
     if(DB_SNAPSHOT_MAX_BYTES!==20*1024*1024)throw new Error("Неожиданный лимит размера файла");
@@ -2765,7 +2879,7 @@ function dbRunSelfTests(){
     if(!rejected)throw new Error("Чрезмерно длинный текст был принят");
   });
   const pass=results.filter(r=>r.ok).length,fail=results.length-pass;
-  DB_LAST_SELF_TEST_REPORT={system:"АИС «Техноконтур»",cipher:"«Провидец»",program:"v100.0.0",suite:"db-snapshot-selftest",executedAt:new Date().toISOString(),summary:{total:results.length,passed:pass,failed:fail},results:results.map(r=>({...r}))};
+  DB_LAST_SELF_TEST_REPORT={system:"АИС «Техноконтур»",cipher:"«Провидец»",program:ver(),suite:"db-snapshot-selftest",executedAt:new Date().toISOString(),summary:{total:results.length,passed:pass,failed:fail},results:results.map(r=>({...r}))};
   const old=document.getElementById("dbSelfTestDialog");if(old)old.remove();
   const overlay=document.createElement("div");overlay.id="dbSelfTestDialog";
   overlay.style.cssText="position:fixed;inset:0;z-index:10050;background:rgba(2,6,23,.78);display:flex;align-items:center;justify-content:center;padding:16px;";
@@ -2795,16 +2909,16 @@ function buildLiveStateIntegrityReport(){
   const selection={organization:state.selEnt||null,organizationExists:!!(state.selEnt&&orgIds.has(state.selEnt)),project:state.selProj||null,projectExists:!!(state.selProj&&PROJECTS.some(p=>p&&p.id===state.selProj))};
   if(state.selEnt&&!selection.organizationExists)issues.push({code:"SELECTION_ORG_MISSING",detail:"Выбранная организация отсутствует: "+String(state.selEnt)});
   if(state.selProj&&!selection.projectExists)issues.push({code:"SELECTION_PROJECT_MISSING",detail:"Выбранный проект отсутствует: "+String(state.selProj)});
-  return {system:"АИС «Техноконтур» / «Провидец»",program:"v100.0.0",kind:"live-state-integrity-check",status:issues.length?"FAIL":"PASS",checkedAt:new Date().toISOString(),counts:{organizations:ORGS.length,orgIndexEntries:Object.keys(ORG_BY_ID).length,projects:PROJECTS.length},selection,issues,limitations:["Проверка читает только структуры памяти текущей вкладки.","Не проверяет серверную БД, межвкладочную согласованность или долговременную сохранность.","Отчёт не является доказательством промышленной целостности."]};
+  return {system:"АИС «Техноконтур» / «Провидец»",program:ver(),kind:"live-state-integrity-check",status:issues.length?"FAIL":"PASS",checkedAt:new Date().toISOString(),counts:{organizations:ORGS.length,orgIndexEntries:Object.keys(ORG_BY_ID).length,projects:PROJECTS.length},selection,issues,limitations:["Проверка читает только структуры памяти текущей вкладки.","Не проверяет серверную БД, межвкладочную согласованность или долговременную сохранность.","Отчёт не является доказательством промышленной целостности."]};
 }
 function buildP0EvidenceSummary(){
   const integrity=buildLiveStateIntegrityReport();
   const rollback=window.__tcLastRestoreRollback||{status:"NOT_RUN",issues:[],checkedAt:null};
-  const report={system:"АИС «Техноконтур» / «Провидец»",program:"v100.0.0",kind:"p0-evidence-summary",generatedAt:new Date().toISOString(),status:"PROTOTYPE_EVIDENCE_SUMMARY_NOT_ACCEPTANCE",checks:{liveStateIntegrity:{status:integrity.status,issues:integrity.issues},lastRestoreRollback:{status:rollback.status,issues:rollback.issues||[],checkedAt:rollback.checkedAt||null},browserE2E:{status:"NOT_RUN"},serverIAMAPI:{status:"NOT_RUN"},airGapNetworkEvidence:{status:"NOT_RUN"},signedManifestVerification:{status:"NOT_RUN"}},limitations:["Отчёт объединяет доступные локальные признаки и явно отмечает невыполненные испытания.","PASS для текущей памяти вкладки не доказывает долговременную или серверную целостность.","Для промышленной приёмки нужны независимые браузерные, серверные, сетевые испытания и проверка подписи артефактов."]};
+  const report={system:"АИС «Техноконтур» / «Провидец»",program:ver(),kind:"p0-evidence-summary",generatedAt:new Date().toISOString(),status:"PROTOTYPE_EVIDENCE_SUMMARY_NOT_ACCEPTANCE",checks:{liveStateIntegrity:{status:integrity.status,issues:integrity.issues},lastRestoreRollback:{status:rollback.status,issues:rollback.issues||[],checkedAt:rollback.checkedAt||null},browserE2E:{status:"NOT_RUN"},serverIAMAPI:{status:"NOT_RUN"},airGapNetworkEvidence:{status:"NOT_RUN"},signedManifestVerification:{status:"NOT_RUN"}},limitations:["Отчёт объединяет доступные локальные признаки и явно отмечает невыполненные испытания.","PASS для текущей памяти вкладки не доказывает долговременную или серверную целостность.","Для промышленной приёмки нужны независимые браузерные, серверные, сетевые испытания и проверка подписи артефактов."]};
   return report;
 }
 function buildP0EvidenceBundleCore(){
-  const report={system:"АИС «Техноконтур» / «Провидец»",program:"v100.0.0",kind:"p0-evidence-bundle",status:"PROTOTYPE_EVIDENCE_BUNDLE_NOT_ACCEPTANCE",generatedAt:new Date().toISOString(),artifacts:{liveStateIntegrity:buildLiveStateIntegrityReport(),p0Summary:buildP0EvidenceSummary(),importRestorePlan:buildImportAcceptanceMatrix(),airGapPlan:buildAirGapAcceptancePlan()},externalAcceptance:{browserE2E:"NOT_RUN",serverIAMAPI:"NOT_RUN",airGapPhysicalEvidence:"NOT_RUN",signedManifestVerification:"NOT_RUN"},artifactDigests:{algorithm:"SHA-256",status:"PENDING",entries:[]},limitations:["Сводный пакет автоматически собирает локальные диагностические артефакты, но не подтверждает их независимость.","SHA-256-отпечатки помогают выявлять изменение сериализованных артефактов, но не являются цифровой подписью и не подтверждают источник.","Любой план со статусом NOT_RUN остаётся невыполненным до добавления проверяемых доказательств ответственным испытателем.","CRC32 и SHA-256 без доверенного подписанного манифеста не подтверждают происхождение данных.","Этот пакет не является актом приёмки, сертификатом безопасности или подтверждением промышленной готовности."]};
+  const report={system:"АИС «Техноконтур» / «Провидец»",program:ver(),kind:"p0-evidence-bundle",status:"PROTOTYPE_EVIDENCE_BUNDLE_NOT_ACCEPTANCE",generatedAt:new Date().toISOString(),artifacts:{liveStateIntegrity:buildLiveStateIntegrityReport(),p0Summary:buildP0EvidenceSummary(),importRestorePlan:buildImportAcceptanceMatrix(),airGapPlan:buildAirGapAcceptancePlan()},externalAcceptance:{browserE2E:"NOT_RUN",serverIAMAPI:"NOT_RUN",airGapPhysicalEvidence:"NOT_RUN",signedManifestVerification:"NOT_RUN"},artifactDigests:{algorithm:"SHA-256",status:"PENDING",entries:[]},limitations:["Сводный пакет автоматически собирает локальные диагностические артефакты, но не подтверждает их независимость.","SHA-256-отпечатки помогают выявлять изменение сериализованных артефактов, но не являются цифровой подписью и не подтверждают источник.","Любой план со статусом NOT_RUN остаётся невыполненным до добавления проверяемых доказательств ответственным испытателем.","CRC32 и SHA-256 без доверенного подписанного манифеста не подтверждают происхождение данных.","Этот пакет не является актом приёмки, сертификатом безопасности или подтверждением промышленной готовности."]};
   return report;
 }
 async function buildP0EvidenceBundle(){
@@ -2821,9 +2935,9 @@ async function buildP0EvidenceBundle(){
   }catch(e){report.artifactDigests={algorithm:"SHA-256",status:"NOT_AVAILABLE",entries:[],reason:sanitizeDiagnosticText(e&&e.message||e)};}
   return sanitizeDiagnosticExportValue(report);
 }
-async function exportP0EvidenceBundle(){const report=await buildP0EvidenceBundle();const ok=downloadFile("providets_p0_evidence_bundle_v100.json",JSON.stringify(report,null,2),"application/json;charset=utf-8");if(ok)toast("Сводный P0-пакет экспортирован; хеши не являются подписью, внешние испытания остаются NOT_RUN.","ok","P0");return report;}
-function exportP0EvidenceSummary(){const report=buildP0EvidenceSummary();const ok=downloadFile("providets_p0_evidence_summary_v100.json",JSON.stringify(sanitizeDiagnosticExportValue(report),null,2),"application/json;charset=utf-8");if(ok)toast("Сводка доказательств P0 экспортирована; это не акт приёмки.","ok","P0");return report;}
-function exportLiveStateIntegrityReport(){const report=buildLiveStateIntegrityReport();const ok=downloadFile("providets_live_state_integrity_v100.json",JSON.stringify(sanitizeDiagnosticExportValue(report),null,2),"application/json;charset=utf-8");if(ok)toast("Отчёт целостности текущего состояния экспортирован; статус: "+report.status,report.status==="PASS"?"ok":"err","CORE");return report;}
+async function exportP0EvidenceBundle(){const report=await buildP0EvidenceBundle();const ok=downloadFile("providets_p0_evidence_bundle"+APP_VERSION.build+".json",JSON.stringify(report,null,2),"application/json;charset=utf-8");if(ok)toast("Сводный P0-пакет экспортирован; хеши не являются подписью, внешние испытания остаются NOT_RUN.","ok","P0");return report;}
+function exportP0EvidenceSummary(){const report=buildP0EvidenceSummary();const ok=downloadFile("providets_p0_evidence_summary"+APP_VERSION.build+".json",JSON.stringify(sanitizeDiagnosticExportValue(report),null,2),"application/json;charset=utf-8");if(ok)toast("Сводка доказательств P0 экспортирована; это не акт приёмки.","ok","P0");return report;}
+function exportLiveStateIntegrityReport(){const report=buildLiveStateIntegrityReport();const ok=downloadFile("providets_live_state_integrity"+APP_VERSION.build+".json",JSON.stringify(sanitizeDiagnosticExportValue(report),null,2),"application/json;charset=utf-8");if(ok)toast("Отчёт целостности текущего состояния экспортирован; статус: "+report.status,report.status==="PASS"?"ok":"err","CORE");return report;}
 function sanitizeDiagnosticExportValue(value,depth,seen){
   depth=Number(depth)||0;seen=seen||new WeakSet();
   if(depth>12)return "[TRUNCATED_DEPTH]";
@@ -2864,7 +2978,9 @@ async function previewDBRestoreImpl(input){
   if(postReadBlock){toast("Восстановление отменено: "+postReadBlock,"err","CORE");return;}
   const c=validated.counts;
   const summary="Файл: "+file.name+"\nСоздан: "+String(dump.createdAt||"не указано")+"\n\nБудут заменены локальные демонстрационные коллекции:\nОрганизации: "+c.orgs+"\nПроекты НИОКР: "+c.projects+"\nРиски: "+c.risks+"\nДокументы: "+c.docs+"\nСтимулы/санкции: "+c.stims+"\nОчередь экспертизы: "+c.experts+"\nЦифровые двойники: "+c.twins+"\nСобытия: "+c.events+"\nЗаписи локального демо-аудита: "+c.audit+"\n\nКонтрольная сумма CRC32 совпала. Это не цифровая подпись и не подтверждение подлинности.\n\nПродолжить замену локальных демонстрационных данных?";
-  if(!window.confirm(summary)){toast("Восстановление отменено; данные не изменены.","","CORE");return;}
+  /* P3.4 (v101): блокирующий нативный диалог заменён доступным tcDialog (не модальный для браузера) */
+  const restoreConfirmed=await tcConfirm("Восстановление демонстрационных данных из снимка",summary,"Заменить данные");
+  if(!restoreConfirmed){toast("Восстановление отменено; данные не изменены.","","CORE");return;}
   // Recheck permissions/session after the modal dialog; UI state can change while it is open.
   const preCommitBlock=dbRestorePermissionBlock(state.role&&state.role.id,SRV.connected,SRV.token);
   if(preCommitBlock){toast("Восстановление отменено: "+preCommitBlock,"err","CORE");return;}
@@ -4125,7 +4241,7 @@ function exportReportXlsx(){
 RENDERERS.roadmap=function(){
   return pageHead("Статус реализации и дорожная карта",
     'Честная оценка соответствия прототипа и промышленной реализации требованиям ТЗ v4.0 (по результатам независимого аудита). Прототип закрывает UI/UX, клиентскую бизнес-логику (расчеты, валидации, событийные цепочки, экспорт документов) и демонстрационные сценарии; серверная часть, СУБД, реальные интеграции и аттестация ФСТЭК выполняются на этапах 1–7 (ТЗ п.11).',
-    'Прототип v100.0.0 · компонент в оценке: '+ROADMAP.length+' · этапы работ: '+WORK_STAGES.length)+
+    'Прототип '+ver()+' · компонент в оценке: '+ROADMAP.length+' · этапы работ: '+WORK_STAGES.length)+
   '<div class="iam-note">🎯 <b>Рекомендация аудитора выполнена:</b> прототип используется как интерактивный макет для согласования UX/UI, структуры меню и логики демо-сценариев перед началом backend-разработки; структура модулей прототипа является основой каркаса приложения; паспорт предприятия реализован «вглубь» — 92 поля спецификации Приложения 2 с типами, обязательностью, источниками, редактированием и версионностью.</div>'+
   '<div class="sec-title">Оценка готовности по компонентам ТЗ v4.0</div>'+
   '<div class="tbl-wrap" style="margin-bottom:16px"><table class="tbl"><thead><tr><th style="min-width:170px">Компонент ТЗ</th><th>Реализовано в прототипе</th><th>Требуется для промышленной эксплуатации</th><th style="width:130px">Этап (ТЗ п.11)</th></tr></thead><tbody>'+
@@ -4150,7 +4266,7 @@ RENDERERS.roadmap=function(){
   '<div class="card"><h3><span class="hico">✓</span> Что уже можно использовать из прототипа</h3><ul style="list-style:none;font-size:12.8px;color:var(--tx2);line-height:1.95">'+
    ["Спецификация экранных форм и навигации (22 страницы) — основа ТЗ на frontend","Каталог из 30+ событий шины и 10 ИВП — контракт интеграции модулей","Алгоритмы: индекс зрелости, EVM, PERT, скоринг кооперации, валидация ФНС, CRC32-целостность","Генераторы OOXML (DOCX/XLSX) — переносимы на серверную генерацию без библиотек","Спецификация 92 полей паспорта (Приложение 2) с типами и источниками","Демо-сценарии (киоск, гид-тур) — для защиты проекта и обучения персонала","Матрицы RACI, классификатор компетенций, глоссарий — справочные данные системы"].map(x=>"<li>▸ "+x+"</li>").join("")+
   "</ul></div></div>"+
-  '<div class="footer-note">Оценка носит справочный характер и не заменяет акты приемки этапов (ТЗ п.12). АИС «Техноконтур» | шифр «Провидец» | прототип v100.0.0</div>';
+  '<div class="footer-note">Оценка носит справочный характер и не заменяет акты приемки этапов (ТЗ п.12). АИС «Техноконтур» | шифр «Провидец» | прототип '+ver()+'</div>';
 };
 
 /* ================= ПЛАН РАЗРАБОТКИ (ФАЗЫ 0–6, 36 МЕСЯЦЕВ) ================= */
@@ -4189,7 +4305,7 @@ RENDERERS.plan=function(){
     'Бюджет: '+totalBudget+' млн ₽ (+10 млн ₽/год сопровождение) · срок: 36 мес. · задач в плане: '+totalTasks+" · отмечено: "+doneTasks,
     '<a class="btn ac" href="'+PLAN_DOC+'" target="_blank" rel="noopener" style="text-decoration:none">📄 Полный документ плана ↗</a><button class="btn" onclick="showPage(\'roadmap\')">Статус прототипа →</button>')+
   '<div class="card" style="margin-bottom:14px"><h3><span class="hico">▦</span> Сводный план-график (диаграмма Ганта)</h3>'+planGantt()+
-   '<div class="hint" style="margin-top:6px">Заполненная часть полосы — прогресс чек-листа фазы (интерактивно). Красная линия — текущая точка: интерактивный прототип v100.0.0, серверный режим (бэкенд FastAPI + СУБД) и артефакты Фаз 0–4.</div></div>'+
+   '<div class="hint" style="margin-top:6px">Заполненная часть полосы — прогресс чек-листа фазы (интерактивно). Красная линия — текущая точка: интерактивный прототип '+ver()+', серверный режим (бэкенд FastAPI + СУБД) и артефакты Фаз 0–4.</div></div>'+
   '<div class="cards c4" style="margin-bottom:14px">'+
    PLAN_STRATEGY.map(x=>'<div class="card"><h3 style="font-size:11.5px"><span class="hico">◆</span> '+esc(x[0])+'</h3><div class="hint" style="font-size:12px;line-height:1.55">'+esc(x[1])+"</div></div>").join("")+"</div>"+
   DEV_PLAN.map(p=>{
@@ -4225,7 +4341,7 @@ RENDERERS.plan=function(){
 
 /* ================= О СИСТЕМЕ ================= */
 const TC_SERVER_SECURITY_CONTRACT={
-  system:"АИС «Техноконтур»",cipher:"Провидец",program:"v100.0.0",kind:"backend-security-acceptance-contract",status:"requirements_only_not_implemented_or_verified_by_this_html",generatedAt:null,
+  system:"АИС «Техноконтур»",cipher:"Провидец",program:ver(),kind:"backend-security-acceptance-contract",status:"requirements_only_not_implemented_or_verified_by_this_html",generatedAt:null,
   requirements:[
     {id:"AUTH-01",area:"authentication",requirement:"Server validates credentials and MFA; brute-force protections and generic failure responses are required.",test:"Wrong password and wrong MFA must not create a session; rate limit is observable."},
     {id:"AUTHZ-01",area:"authorization",requirement:"Every API operation enforces action, role, object and tenant scope server-side; client can() is not authoritative.",test:"Direct API calls with insufficient role or foreign object ID return 403 and do not mutate data."},
@@ -4244,12 +4360,12 @@ const TC_SERVER_SECURITY_CONTRACT={
 };
 function exportServerSecurityContract(){
   const out={...TC_SERVER_SECURITY_CONTRACT,generatedAt:new Date().toISOString()};
-  downloadFile("providets_server_security_contract_v100.json",JSON.stringify(out,null,2),"application/json;charset=utf-8");
+  downloadFile("providets_server_security_contract"+APP_VERSION.build+".json",JSON.stringify(out,null,2),"application/json;charset=utf-8");
   toast("Экспортирован контракт требований. Это план приёмки, не протокол выполненных испытаний.","ok","P0 · IAM");
 }
 function exportServerSecurityTestPlan(){
-  const plan={kind:"server-security-test-plan",status:"planned_not_executed",generatedAt:new Date().toISOString(),program:"v100.0.0",system:"АИС «Техноконтур» / «Провидец»",protocol:TC_SERVER_SECURITY_CONTRACT.testProtocol,tests:TC_SERVER_SECURITY_CONTRACT.negativeTests.map((title,i)=>({id:"P0-NEG-"+String(i+1).padStart(2,"0"),title,expected:"Reject safely; no unauthorized state change; write server-side audit evidence where applicable.",actual:null,result:"NOT_RUN",evidence:[]})),warning:"This file is a test plan only. It contains no claim that these tests have been executed."};
-  downloadFile("providets_server_security_test_plan_v100.json",JSON.stringify(plan,null,2),"application/json;charset=utf-8");
+  const plan={kind:"server-security-test-plan",status:"planned_not_executed",generatedAt:new Date().toISOString(),program:ver(),system:"АИС «Техноконтур» / «Провидец»",protocol:TC_SERVER_SECURITY_CONTRACT.testProtocol,tests:TC_SERVER_SECURITY_CONTRACT.negativeTests.map((title,i)=>({id:"P0-NEG-"+String(i+1).padStart(2,"0"),title,expected:"Reject safely; no unauthorized state change; write server-side audit evidence where applicable.",actual:null,result:"NOT_RUN",evidence:[]})),warning:"This file is a test plan only. It contains no claim that these tests have been executed."};
+  downloadFile("providets_server_security_test_plan"+APP_VERSION.build+".json",JSON.stringify(plan,null,2),"application/json;charset=utf-8");
   toast("Экспортирован план испытаний; все тесты помечены NOT_RUN.","ok","P0 · IAM");
 }
 
@@ -4262,7 +4378,7 @@ function scanResourceInventory(){
   nodes.forEach((el,index)=>{const tag=el.tagName.toLowerCase();const names=attrs[tag]||[];const values=[];names.forEach(a=>{const raw=el.getAttribute(a);if(raw){if(a==="srcset"){raw.split(",").forEach(part=>{const u=part.trim().split(/\s+/)[0];if(u)values.push({attribute:a,raw:u,url:norm(u)});});}else values.push({attribute:a,raw,url:norm(raw)});}});if(!values.length&&tag==="script"&&!el.src)values.push({attribute:"inline",raw:"[inline script]",url:""});values.forEach(v=>rows.push({index,tag,attribute:v.attribute,url:v.url||null,classification:classify(v.url,tag),async:!!el.async,defer:!!el.defer,integrity:el.getAttribute("integrity")||null,crossorigin:el.getAttribute("crossorigin")||null}));});
   const inlineHandlers=[];document.querySelectorAll("*").forEach((el)=>Array.from(el.attributes||[]).forEach(a=>{if(/^on/i.test(a.name))inlineHandlers.push({tag:el.tagName.toLowerCase(),attribute:a.name});}));
   const counts={};rows.forEach(r=>counts[r.classification]=(counts[r.classification]||0)+1);
-  return {system:"АИС «Техноконтур» / «Провидец»",program:"v100.0.0",kind:"runtime-resource-inventory",generatedAt:new Date().toISOString(),pageProtocol:location.protocol,variant:state.variant,resourceCount:rows.length,inlineEventHandlerCount:inlineHandlers.length,classificationCounts:counts,resources:rows,inlineEventHandlers:inlineHandlers.slice(0,500),limitations:["Инвентаризация только DOM-ресурсов, существующих в момент сканирования.","Не обнаруживает гарантированно ресурсы, загружаемые позднее или из CSS, workers, service workers, WebRTC, расширений браузера и других каналов.","Наличие внешнего URL не доказывает успешное соединение; отсутствие URL в отчёте не доказывает Air-Gap.","Отчёт не блокирует ресурсы и не заменяет CSP, firewall, DNS policy и испытания трафика."]};
+  return {system:"АИС «Техноконтур» / «Провидец»",program:ver(),kind:"runtime-resource-inventory",generatedAt:new Date().toISOString(),pageProtocol:location.protocol,variant:state.variant,resourceCount:rows.length,inlineEventHandlerCount:inlineHandlers.length,classificationCounts:counts,resources:rows,inlineEventHandlers:inlineHandlers.slice(0,500),limitations:["Инвентаризация только DOM-ресурсов, существующих в момент сканирования.","Не обнаруживает гарантированно ресурсы, загружаемые позднее или из CSS, workers, service workers, WebRTC, расширений браузера и других каналов.","Наличие внешнего URL не доказывает успешное соединение; отсутствие URL в отчёте не доказывает Air-Gap.","Отчёт не блокирует ресурсы и не заменяет CSP, firewall, DNS policy и испытания трафика."]};
 }
 function renderResourceInventory(){
   const report=scanResourceInventory();window.__tcResourceInventory=report;
@@ -4271,15 +4387,15 @@ function renderResourceInventory(){
 }
 function exportResourceInventory(){
   const report=window.__tcResourceInventory||renderResourceInventory();
-  return downloadFile("providets_resource_inventory_v100.json",JSON.stringify(report,null,2),"application/json;charset=utf-8");
+  return downloadFile("providets_resource_inventory"+APP_VERSION.build+".json",JSON.stringify(report,null,2),"application/json;charset=utf-8");
 }
 
 /* P0.16: CSP deployment profile generator. It emits a review draft; it does not set response headers. */
 function buildCspDeploymentProfile(){
- const profile={system:"АИС «Техноконтур» / «Провидец»",program:"v100.0.0",kind:"csp-deployment-profile",status:"draft_for_backend_and_security_review_not_enforced_by_html",generatedAt:new Date().toISOString(),profiles:{network:{name:"Сетевой режим — проект политики",header:"Content-Security-Policy-Report-Only",directives:{"default-src":["'self'"],"base-uri":["'self'"],"object-src":["'none'"],"frame-ancestors":["'none'"],"form-action":["'self'"],"connect-src":["'self'","<approved-api-origin>"],"img-src":["'self'","data:","blob:","<approved-image-or-tile-origin>"],"font-src":["'self'","data:"],"style-src":["'self'","'unsafe-inline'","<approved-style-origin>"],"script-src":["'self'","'unsafe-inline'","<approved-script-origin>"]}},autonomous:{name:"Автономный режим — проект политики",header:"Content-Security-Policy-Report-Only",directives:{"default-src":["'self'"],"base-uri":["'self'"],"object-src":["'none'"],"frame-ancestors":["'none'"],"form-action":["'self'"],"connect-src":["'self'","http://127.0.0.1:8080","<approved-private-api-origin>"],"img-src":["'self'","data:","blob:","<approved-local-tile-origin>"],"font-src":["'self'","data:"],"style-src":["'self'","'unsafe-inline'"],"script-src":["'self'","'unsafe-inline'"]}}},deploymentRequirements:["Начинать с Report-Only и собирать нарушения в тестовой среде.","CSP должен задаваться HTTP-заголовком веб-сервера/шлюза, а не только meta-тегом в HTML.","Постепенно устранять inline-скрипты/обработчики и переходить на nonce/hash; не копировать unsafe-inline в финальную политику без обоснования.","Заменить все placeholders на утверждённые origin; запрещено использовать wildcard без обоснования.","Проверить маршруты, карты, шрифты, загрузки файлов, экспорт и все экраны в обоих вариантах поставки.","После анализа Report-Only включить enforced CSP с контролем регрессии; настроить Trusted Types при совместимости.","Для Air-Gap отдельно запретить egress на сетевом уровне и проверить pcap/firewall/DNS журналы."],knownLimitations:["Этот профиль не устанавливает CSP-заголовки и не блокирует ресурсы сам по себе.","В текущем монолитном HTML присутствуют inline-скрипты и обработчики; строгая CSP может ломать интерфейс до рефакторинга.","Политика требует согласования с реальными адресами API, карт, ресурсов и серверной конфигурацией."]};
+ const profile={system:"АИС «Техноконтур» / «Провидец»",program:ver(),kind:"csp-deployment-profile",status:"draft_for_backend_and_security_review_not_enforced_by_html",generatedAt:new Date().toISOString(),profiles:{network:{name:"Сетевой режим — проект политики",header:"Content-Security-Policy-Report-Only",directives:{"default-src":["'self'"],"base-uri":["'self'"],"object-src":["'none'"],"frame-ancestors":["'none'"],"form-action":["'self'"],"connect-src":["'self'","<approved-api-origin>"],"img-src":["'self'","data:","blob:","<approved-image-or-tile-origin>"],"font-src":["'self'","data:"],"style-src":["'self'","'unsafe-inline'","<approved-style-origin>"],"script-src":["'self'","'unsafe-inline'","<approved-script-origin>"]}},autonomous:{name:"Автономный режим — проект политики",header:"Content-Security-Policy-Report-Only",directives:{"default-src":["'self'"],"base-uri":["'self'"],"object-src":["'none'"],"frame-ancestors":["'none'"],"form-action":["'self'"],"connect-src":["'self'","http://127.0.0.1:8080","<approved-private-api-origin>"],"img-src":["'self'","data:","blob:","<approved-local-tile-origin>"],"font-src":["'self'","data:"],"style-src":["'self'","'unsafe-inline'"],"script-src":["'self'","'unsafe-inline'"]}}},deploymentRequirements:["Начинать с Report-Only и собирать нарушения в тестовой среде.","CSP должен задаваться HTTP-заголовком веб-сервера/шлюза, а не только meta-тегом в HTML.","Постепенно устранять inline-скрипты/обработчики и переходить на nonce/hash; не копировать unsafe-inline в финальную политику без обоснования.","Заменить все placeholders на утверждённые origin; запрещено использовать wildcard без обоснования.","Проверить маршруты, карты, шрифты, загрузки файлов, экспорт и все экраны в обоих вариантах поставки.","После анализа Report-Only включить enforced CSP с контролем регрессии; настроить Trusted Types при совместимости.","Для Air-Gap отдельно запретить egress на сетевом уровне и проверить pcap/firewall/DNS журналы."],knownLimitations:["Этот профиль не устанавливает CSP-заголовки и не блокирует ресурсы сам по себе.","В текущем монолитном HTML присутствуют inline-скрипты и обработчики; строгая CSP может ломать интерфейс до рефакторинга.","Политика требует согласования с реальными адресами API, карт, ресурсов и серверной конфигурацией."]};
  return profile;
 }
-function exportCspDeploymentProfile(){const p=buildCspDeploymentProfile();downloadFile("providets_csp_deployment_profile_v100.json",JSON.stringify(p,null,2),"application/json;charset=utf-8");toast("Экспортирован проект CSP Report-Only; заголовок не установлен этой страницей.","ok","P0 · CSP");return p;}
+function exportCspDeploymentProfile(){const p=buildCspDeploymentProfile();downloadFile("providets_csp_deployment_profile"+APP_VERSION.build+".json",JSON.stringify(p,null,2),"application/json;charset=utf-8");toast("Экспортирован проект CSP Report-Only; заголовок не установлен этой страницей.","ok","P0 · CSP");return p;}
 function renderCspDeploymentProfile(){const p=buildCspDeploymentProfile();const el=document.getElementById("cspProfileResults");if(el)el.innerHTML='<b>Статус: проект для согласования, не применяется браузером.</b><div style="margin-top:6px">Профили: '+Object.keys(p.profiles).map(esc).join(", ")+'. Требований к внедрению: '+p.deploymentRequirements.length+'. Ограничений: '+p.knownLimitations.length+'.</div><div class="hint" style="margin-top:6px">Строгая CSP без удаления inline-обработчиков может нарушить работу текущего прототипа. Сначала Report-Only в тестовом окружении.</div>';return p;}
 
 /* P0.17: passive CSP violation telemetry; it only records events delivered by the browser. */
@@ -4293,7 +4409,7 @@ if(!window.__tcCspListenerInstalled){
  });window.__tcCspListenerInstalled=true;
 }
 function renderCspViolationStatus(){const rows=window.__tcCspViolations||[];const el=document.getElementById("cspViolationResults");if(el)el.innerHTML='<b>Зафиксировано браузерных событий CSP: '+rows.length+'</b><div class="hint" style="margin-top:5px">Слушатель установлен: '+(!!window.__tcCspListenerInstalled?'да':'нет')+'. Отсутствие событий не означает, что CSP настроена или что нарушений нет: нужен серверный Report-Only заголовок и полный проход сценариев.</div>'+rows.slice(-10).reverse().map(r=>'<div style="padding:4px 0;border-top:1px solid var(--line)"><b>'+esc(r.effectiveDirective||r.violatedDirective||'CSP')+'</b> · '+esc(r.disposition)+'<br><span class="hint">'+esc(r.blockedURI||'(URI не указан)')+'</span></div>').join("");return rows.length;}
-function exportCspViolationEvidence(){const rows=window.__tcCspViolations||[];const payload={system:"АИС «Техноконтур» / «Провидец»",program:"v100.0.0",kind:"csp-violation-event-snapshot",status:"browser_events_only_not_complete_security_evidence",generatedAt:new Date().toISOString(),listenerInstalled:!!window.__tcCspListenerInstalled,eventCount:rows.length,events:rows,limitations:["Записываются только securitypolicyviolation events, доставленные браузером после получения CSP.","Для работы нужен настроенный серверный CSP-Report-Only заголовок; HTML сам его не устанавливает.","Отчёт не является полным сетевым журналом и не доказывает отсутствие нарушений.","URI нормализуются до origin/path; sample и query-параметры намеренно не сохраняются."]};return downloadFile("providets_csp_violation_snapshot_v100.json",JSON.stringify(payload,null,2),"application/json;charset=utf-8");}
+function exportCspViolationEvidence(){const rows=window.__tcCspViolations||[];const payload={system:"АИС «Техноконтур» / «Провидец»",program:ver(),kind:"csp-violation-event-snapshot",status:"browser_events_only_not_complete_security_evidence",generatedAt:new Date().toISOString(),listenerInstalled:!!window.__tcCspListenerInstalled,eventCount:rows.length,events:rows,limitations:["Записываются только securitypolicyviolation events, доставленные браузером после получения CSP.","Для работы нужен настроенный серверный CSP-Report-Only заголовок; HTML сам его не устанавливает.","Отчёт не является полным сетевым журналом и не доказывает отсутствие нарушений.","URI нормализуются до origin/path; sample и query-параметры намеренно не сохраняются."]};return downloadFile("providets_csp_violation_snapshot"+APP_VERSION.build+".json",JSON.stringify(payload,null,2),"application/json;charset=utf-8");}
 function clearCspViolationEvidence(){window.__tcCspViolations=[];renderCspViolationStatus();toast("Локальный снимок CSP-событий очищен.","ok","P0 · CSP");}
 
 /* P0.18: software-component register / SBOM draft. Observed browser resources are not a complete build SBOM. */
@@ -4301,10 +4417,10 @@ function buildSoftwareComponentRegister(){
  const inv=scanResourceInventory();
  const observed=[];const seen=new Set();
  (inv.resources||[]).forEach(r=>{if(!r.url||!/^https?:/.test(r.url))return;const key=[r.tag,r.url,r.integrity||''].join('|');if(seen.has(key))return;seen.add(key);observed.push({type:'file',name:r.url.split('/').pop().split('?')[0]||r.tag,version:'UNKNOWN',purl:null,scope:'runtime-observed',licenses:[{license:{name:'UNKNOWN — requires supplier/build metadata'}}],hashes:r.integrity?[{alg:'SRI',content:r.integrity}]:[],evidence:{tag:r.tag,classification:r.classification,url:r.url},bomRef:'runtime-'+(observed.length+1)});});
- return {bomFormat:'CycloneDX',specVersion:'1.5',serialNumber:'urn:uuid:00000000-0000-4000-8000-'+String(Date.now()).slice(-12).padStart(12,'0'),version:1,metadata:{timestamp:new Date().toISOString(),tools:[{vendor:'OpenAI ChatGPT',name:'АИС «Техноконтур» SBOM draft generator',version:"v100.0.0"}],component:{type:'application',name:'АИС «Техноконтур» / «Провидец»',version:"v100.0.0",description:'Single-file HTML prototype; not a signed release bill of materials.'}},components:observed,dependencies:[],properties:[{name:'tc:status',value:'partial-runtime-observation-not-build-complete'},{name:'tc:license-review',value:'required'},{name:'tc:hashes',value:'SRI only where present; file SHA-256 belongs in external release manifest'},{name:'tc:limitations',value:'DOM-visible URLs only; does not identify bundled/minified components, server packages, OS packages, transitive dependencies, licenses or CVEs.'}],formulation:{components:[],workflows:[]},vulnerabilities:[],annotations:[{subjects:[],annotator:{organization:'АИС «Техноконтур»',name:'Prototype diagnostic'},text:'Do not use as a complete or authoritative SBOM. Generate build SBOM from lockfiles/build artifacts and verify supplier attestations.'}]};
+ return {bomFormat:'CycloneDX',specVersion:'1.5',serialNumber:'urn:uuid:00000000-0000-4000-8000-'+String(Date.now()).slice(-12).padStart(12,'0'),version:1,metadata:{timestamp:new Date().toISOString(),tools:[{vendor:'OpenAI ChatGPT',name:'АИС «Техноконтур» SBOM draft generator',version:ver()}],component:{type:'application',name:'АИС «Техноконтур» / «Провидец»',version:ver(),description:'Single-file HTML prototype; not a signed release bill of materials.'}},components:observed,dependencies:[],properties:[{name:'tc:status',value:'partial-runtime-observation-not-build-complete'},{name:'tc:license-review',value:'required'},{name:'tc:hashes',value:'SRI only where present; file SHA-256 belongs in external release manifest'},{name:'tc:limitations',value:'DOM-visible URLs only; does not identify bundled/minified components, server packages, OS packages, transitive dependencies, licenses or CVEs.'}],formulation:{components:[],workflows:[]},vulnerabilities:[],annotations:[{subjects:[],annotator:{organization:'АИС «Техноконтур»',name:'Prototype diagnostic'},text:'Do not use as a complete or authoritative SBOM. Generate build SBOM from lockfiles/build artifacts and verify supplier attestations.'}]};
 }
 function renderSoftwareComponentRegister(){const b=buildSoftwareComponentRegister();window.__tcSoftwareComponentRegister=b;const el=document.getElementById('sbomResults');if(el)el.innerHTML='<b>Наблюдаемых внешних runtime-ресурсов: '+b.components.length+'</b><div class="hint" style="margin-top:5px">Версии и лицензии неизвестны, если не представлены сборочными метаданными. Это частичный runtime-реестр, не полный SBOM.</div>'+b.components.slice(0,12).map(c=>'<div style="padding:3px 0;border-top:1px solid var(--line)"><b>'+esc(c.name)+'</b> · '+esc(c.version)+'<br><span class="hint">'+esc(c.evidence.classification)+' · лицензия требует проверки</span></div>').join('');toast('Реестр наблюдаемых ресурсов сформирован; полнота SBOM не подтверждена.','ok','P0 · SBOM');return b;}
-function exportSoftwareComponentRegister(){const b=window.__tcSoftwareComponentRegister||renderSoftwareComponentRegister();return downloadFile('providets_partial_sbom_v100.json',JSON.stringify(b,null,2),'application/json;charset=utf-8');}
+function exportSoftwareComponentRegister(){const b=window.__tcSoftwareComponentRegister||renderSoftwareComponentRegister();return downloadFile('providets_partial_sbom'+APP_VERSION.build+'.json',JSON.stringify(b,null,2),'application/json;charset=utf-8');}
 
 
 /* P0.19: deterministic client regression smoke tests; no network calls and no business-data mutation. */
@@ -4327,21 +4443,27 @@ function runClientRegressionSmokeTests(){
  check('IAM-RACE-01','Серверный вход проверяет поколение попытки после асинхронных ответов',()=>srvTryLogin.toString().includes('loginAttemptEpoch')&&srvTryLogin.toString().includes('assertLoginAttemptCurrent')&&doLogin.toString().includes('LOGIN_ATTEMPT_SUPERSEDED'));
  check('IAM-POLL-01','Опрос событий привязан к поколению активной сессии',()=>srvStartPolling.toString().includes('pollEpoch')&&srvStartPolling.toString().includes('sessionEpoch')&&srvStartPolling.toString().includes('!SRV.connected'));
  check('IMP-MATRIX-01','Матрица восстановления включает отказ до commit, внутри commit и при индексе',()=>{const m=buildImportAcceptanceMatrix();return ['IMP-09','IMP-10','IMP-11','IMP-12'].every(id=>m.cases.some(c=>c.id===id&&c.result==='NOT_RUN'));});
- check('REL-VER-01','Отображаемые метаданные версии входа соответствуют выпуску',()=>{const h=document.querySelector('.login-head div div');const n=document.querySelector('.login-note');return !!h&&h.textContent.includes('v100.0.0')&&!!n&&n.textContent.includes('100.0.0')&&!h.textContent.includes('v52.0.0')&&!n.textContent.includes('26.0.0');});
+ check('REL-VER-01','Отображаемые метаданные версии входа соответствуют выпуску',()=>{const h=document.querySelector('.login-head div div');const n=document.querySelector('.login-note');return !!h&&h.textContent.includes(ver())&&!!n&&n.textContent.includes(verNum())&&!h.textContent.includes('v52.0.0')&&!n.textContent.includes('26.0.0');});
  check('SBOM-01','Генератор частичного SBOM определён',()=>typeof buildSoftwareComponentRegister==='function');
  check('CSP-01','Генератор профиля CSP определён',()=>typeof buildCspDeploymentProfile==='function');
- const report={system:'АИС «Техноконтур» / «Провидец»',program:"v100.0.0",kind:'client-regression-smoke-test',status:'local_static_runtime_smoke_only',generatedAt:new Date().toISOString(),tests,summary:{total:tests.length,passed:tests.filter(t=>t.result==='PASS').length,failed:tests.filter(t=>t.result==='FAIL').length},limitations:['Проверяются только наличие базовых функций в текущем JS-контексте.','Не проверяются DOM-переходы, серверные ответы, права API, хранение данных, реальный сетевой трафик или Air-Gap.','PASS не является приёмочным подтверждением безопасности.']};window.__tcClientRegressionReport=report;const el=document.getElementById('regressionResults');if(el)el.innerHTML='<b>'+report.summary.passed+'/'+report.summary.total+' проверок PASS</b> · '+report.summary.failed+' FAIL'+tests.map(t=>'<div style="padding:4px 0;border-top:1px solid var(--line)"><b>'+esc(t.result)+'</b> · '+esc(t.id)+' — '+esc(t.title)+'<div class="hint">'+esc(t.detail)+'</div></div>').join('')+'<div class="hint" style="margin-top:8px">Это smoke-test наличия функций, не полноценный браузерный регрессионный набор.</div>';toast('Локальные smoke-проверки завершены. Результат не заменяет приёмочные испытания.','ok','P0 · регрессия');return report;
+ /* P3.x (v101 · Волна 0): проверки новых инженерных механизмов */
+ check('REL-VER-02','Единая константа версии: meta, снимок и сводка P0 согласованы с APP_VERSION',()=>{const metas=document.querySelectorAll('meta[name="providets-release-version"]');return metas.length===1&&metas[0].getAttribute('content')===ver()&&ver()==='v'+APP_VERSION.major+'.'+APP_VERSION.minor+'.'+APP_VERSION.patch&&dbSnapshotPayload().program===ver()&&buildP0EvidenceSummary().program===ver();});
+ check('A11Y-01','Тосты объявляются скринридеру; блокирующие нативные диалоги не используются',()=>{const t=document.getElementById('toasts');return !!t&&t.getAttribute('aria-live')==='polite'&&typeof tcDialog==='function'&&typeof tcConfirm==='function'&&typeof tcPrompt==='function'&&!previewDBRestoreImpl.toString().includes('window.confirm')&&!srvTryLogin.toString().includes('window.prompt');});
+ check('NAV-01','Элементы навигации доступны с клавиатуры (role/tabindex/data-page)',()=>{if(!state||!state.role)return false;renderNav();const items=document.querySelectorAll('#nav .nav-item');return items.length>0&&Array.prototype.every.call(items,x=>x.getAttribute('role')==='button'&&x.getAttribute('tabindex')==='0'&&!!x.getAttribute('data-page'));});
+ check('DL-01','Deep-linking: парсер хэша валидирует страницы по реестру RENDERERS',()=>typeof parseHashPage==='function'&&typeof deepLinkSync==='function'&&parseHashPage('#about')==='about'&&parseHashPage('#geo?layer=heat')==='geo'&&parseHashPage('#not-a-page')===null&&parseHashPage('')===null);
+ check('GEO-SRI-01','CDN-режим Leaflet использует SRI; офлайн-режим — локальные файлы поставки',()=>typeof TC_LEAFLET_SRI==='object'&&/^sha256-[A-Za-z0-9+/]{43}=$/.test(TC_LEAFLET_SRI.js)&&/^sha256-[A-Za-z0-9+/]{43}=$/.test(TC_LEAFLET_SRI.css)&&TC_LEAFLET_SRI.version==='1.9.4'&&leafletLoad.toString().includes('integrity'));
+ const report={system:'АИС «Техноконтур» / «Провидец»',program:ver(),kind:'client-regression-smoke-test',status:'local_static_runtime_smoke_only',generatedAt:new Date().toISOString(),tests,summary:{total:tests.length,passed:tests.filter(t=>t.result==='PASS').length,failed:tests.filter(t=>t.result==='FAIL').length},limitations:['Проверяются только наличие базовых функций в текущем JS-контексте.','Не проверяются DOM-переходы, серверные ответы, права API, хранение данных, реальный сетевой трафик или Air-Gap.','PASS не является приёмочным подтверждением безопасности.']};window.__tcClientRegressionReport=report;const el=document.getElementById('regressionResults');if(el)el.innerHTML='<b>'+report.summary.passed+'/'+report.summary.total+' проверок PASS</b> · '+report.summary.failed+' FAIL'+tests.map(t=>'<div style="padding:4px 0;border-top:1px solid var(--line)"><b>'+esc(t.result)+'</b> · '+esc(t.id)+' — '+esc(t.title)+'<div class="hint">'+esc(t.detail)+'</div></div>').join('')+'<div class="hint" style="margin-top:8px">Это smoke-test наличия функций, не полноценный браузерный регрессионный набор.</div>';toast('Локальные smoke-проверки завершены. Результат не заменяет приёмочные испытания.','ok','P0 · регрессия');return report;
 }
-function exportClientRegressionSmokeTests(){const r=window.__tcClientRegressionReport||runClientRegressionSmokeTests();return downloadFile('providets_client_regression_smoke_v100.json',JSON.stringify(r,null,2),'application/json;charset=utf-8');}
+function exportClientRegressionSmokeTests(){const r=window.__tcClientRegressionReport||runClientRegressionSmokeTests();return downloadFile('providets_client_regression_smoke'+APP_VERSION.build+'.json',JSON.stringify(r,null,2),'application/json;charset=utf-8');}
 
 
 /* P0.20: CSP migration readiness scan. Reports inline constructs; does not rewrite code or enforce CSP. */
 function buildCspMigrationReadinessReport(){
  const scripts=Array.from(document.querySelectorAll('script'));const inlineScripts=scripts.filter(x=>!x.src&&String(x.textContent||'').trim().length>0);const externalScripts=scripts.filter(x=>!!x.src);const inlineHandlers=[];const inlineStyles=[];const javascriptUrls=[];
  document.querySelectorAll('*').forEach(el=>{Array.from(el.attributes||[]).forEach(a=>{if(/^on/i.test(a.name))inlineHandlers.push({tag:el.tagName.toLowerCase(),attribute:a.name});if(a.name==='style'&&a.value.trim())inlineStyles.push({tag:el.tagName.toLowerCase(),length:a.value.length});if(/^(href|src|action|formaction)$/i.test(a.name)&&/^\s*javascript:/i.test(a.value))javascriptUrls.push({tag:el.tagName.toLowerCase(),attribute:a.name});});});
- const report={system:'АИС «Техноконтур» / «Провидец»',program:"v100.0.0",kind:'csp-migration-readiness',status:'analysis_only_not_enforced',generatedAt:new Date().toISOString(),counts:{inlineScripts:inlineScripts.length,externalScripts:externalScripts.length,inlineEventHandlers:inlineHandlers.length,inlineStyleAttributes:inlineStyles.length,javascriptUrls:javascriptUrls.length},samples:{inlineHandlers:inlineHandlers.slice(0,100),inlineStyles:inlineStyles.slice(0,100),javascriptUrls:javascriptUrls.slice(0,100),externalScripts:externalScripts.map(x=>({src:x.src,integrity:x.integrity||null})).slice(0,100)},recommendations:['Перенести inline-скрипты в локальные файлы и подключить их через allowlist либо согласованный nonce/hash.','Заменить inline event-handler атрибуты на addEventListener.','Уменьшить style= атрибуты и вынести правила в CSS-классы.','Устранить javascript: URL, если они обнаружены.','Внедрять CSP сначала в Report-Only через HTTP-заголовок сервера; затем переходить к enforced после регрессионных испытаний.','Не использовать unsafe-inline в итоговом профиле без документированного исключения.'],limitations:['Сканирование текущего DOM; поздно создаваемые узлы могут не попасть в снимок.','Не анализирует все динамически формируемые строки кода, CSS-файлы, server templates и заголовки HTTP.','Подсчёт не означает, что каждая конструкция является эксплуатируемой уязвимостью.']};window.__tcCspMigrationReadiness=report;const el=document.getElementById('cspMigrationResults');if(el)el.innerHTML='<b>Inline script: '+report.counts.inlineScripts+'; внешние script: '+report.counts.externalScripts+'; обработчики on*: '+report.counts.inlineEventHandlers+'; style=: '+report.counts.inlineStyleAttributes+'; javascript: URL: '+report.counts.javascriptUrls+'</b><div class="hint" style="margin-top:6px">Это инвентаризация трудоёмкости миграции CSP. Она не включает CSP и не определяет автоматически все уязвимости.</div>';toast('Отчёт готовности CSP сформирован; политика не изменена.','ok','P0 · CSP');return report;
+ const report={system:'АИС «Техноконтур» / «Провидец»',program:ver(),kind:'csp-migration-readiness',status:'analysis_only_not_enforced',generatedAt:new Date().toISOString(),counts:{inlineScripts:inlineScripts.length,externalScripts:externalScripts.length,inlineEventHandlers:inlineHandlers.length,inlineStyleAttributes:inlineStyles.length,javascriptUrls:javascriptUrls.length},samples:{inlineHandlers:inlineHandlers.slice(0,100),inlineStyles:inlineStyles.slice(0,100),javascriptUrls:javascriptUrls.slice(0,100),externalScripts:externalScripts.map(x=>({src:x.src,integrity:x.integrity||null})).slice(0,100)},recommendations:['Перенести inline-скрипты в локальные файлы и подключить их через allowlist либо согласованный nonce/hash.','Заменить inline event-handler атрибуты на addEventListener.','Уменьшить style= атрибуты и вынести правила в CSS-классы.','Устранить javascript: URL, если они обнаружены.','Внедрять CSP сначала в Report-Only через HTTP-заголовок сервера; затем переходить к enforced после регрессионных испытаний.','Не использовать unsafe-inline в итоговом профиле без документированного исключения.'],limitations:['Сканирование текущего DOM; поздно создаваемые узлы могут не попасть в снимок.','Не анализирует все динамически формируемые строки кода, CSS-файлы, server templates и заголовки HTTP.','Подсчёт не означает, что каждая конструкция является эксплуатируемой уязвимостью.']};window.__tcCspMigrationReadiness=report;const el=document.getElementById('cspMigrationResults');if(el)el.innerHTML='<b>Inline script: '+report.counts.inlineScripts+'; внешние script: '+report.counts.externalScripts+'; обработчики on*: '+report.counts.inlineEventHandlers+'; style=: '+report.counts.inlineStyleAttributes+'; javascript: URL: '+report.counts.javascriptUrls+'</b><div class="hint" style="margin-top:6px">Это инвентаризация трудоёмкости миграции CSP. Она не включает CSP и не определяет автоматически все уязвимости.</div>';toast('Отчёт готовности CSP сформирован; политика не изменена.','ok','P0 · CSP');return report;
 }
-function exportCspMigrationReadinessReport(){const r=window.__tcCspMigrationReadiness||buildCspMigrationReadinessReport();return downloadFile('providets_csp_migration_readiness_v100.json',JSON.stringify(r,null,2),'application/json;charset=utf-8');}
+function exportCspMigrationReadinessReport(){const r=window.__tcCspMigrationReadiness||buildCspMigrationReadinessReport();return downloadFile('providets_csp_migration_readiness'+APP_VERSION.build+'.json',JSON.stringify(r,null,2),'application/json;charset=utf-8');}
 
 
 /* P0.21: Air-Gap acceptance test protocol generator. Checklist only; no network probes are sent. */
@@ -4355,8 +4477,8 @@ const TC_AIRGAP_ACCEPTANCE_TESTS=[
  {id:'AG-07',area:'Носители',test:'Проверить регламент контролируемого импорта/обновления с проверкой подписи и вредоносного ПО',evidence:'Акт проверки носителя, подпись, контрольная сумма, журнал допуска',method:'Испытание на тестовом носителе',risk:'high'},
  {id:'AG-08',area:'Повторяемость',test:'Повторить испытание после перезагрузки и на каждом разрешённом сетевом интерфейсе',evidence:'Повторный комплект журналов и протокол сравнения',method:'Повторный полный прогон',risk:'high'}
 ];
-function buildAirGapAcceptancePlan(){return {system:'АИС «Техноконтур» / «Провидец»',program:"v100.0.0",kind:'airgap-acceptance-test-plan',status:'planned_not_executed',generatedAt:new Date().toISOString(),tests:TC_AIRGAP_ACCEPTANCE_TESTS.map(t=>({...t,result:'NOT_RUN',actual:null,evidenceRefs:[],tester:null,startedAt:null,completedAt:null,defectId:null})),acceptanceRules:['Любой внешний egress без утверждённого исключения означает FAIL.','Браузерный отчёт или отсутствие событий не заменяет PCAP, firewall/DNS logs и проверку интерфейсов ОС.','Тест считается PASS только при наличии независимых доказательств, времени, версии ПО, среды и подписи ответственного.','Проверки выполняются в согласованном испытательном контуре, не на действующей производственной сети.'],limitations:['Этот план не выполняет сетевые измерения и не доказывает Air-Gap.','Физическая/логическая изоляция подтверждается средствами ОС, сетевого оборудования и организационными процедурами.']};}
-function exportAirGapAcceptancePlan(){const p=buildAirGapAcceptancePlan();return downloadFile('providets_airgap_acceptance_plan_v100.json',JSON.stringify(p,null,2),'application/json;charset=utf-8');}
+function buildAirGapAcceptancePlan(){return {system:'АИС «Техноконтур» / «Провидец»',program:ver(),kind:'airgap-acceptance-test-plan',status:'planned_not_executed',generatedAt:new Date().toISOString(),tests:TC_AIRGAP_ACCEPTANCE_TESTS.map(t=>({...t,result:'NOT_RUN',actual:null,evidenceRefs:[],tester:null,startedAt:null,completedAt:null,defectId:null})),acceptanceRules:['Любой внешний egress без утверждённого исключения означает FAIL.','Браузерный отчёт или отсутствие событий не заменяет PCAP, firewall/DNS logs и проверку интерфейсов ОС.','Тест считается PASS только при наличии независимых доказательств, времени, версии ПО, среды и подписи ответственного.','Проверки выполняются в согласованном испытательном контуре, не на действующей производственной сети.'],limitations:['Этот план не выполняет сетевые измерения и не доказывает Air-Gap.','Физическая/логическая изоляция подтверждается средствами ОС, сетевого оборудования и организационными процедурами.']};}
+function exportAirGapAcceptancePlan(){const p=buildAirGapAcceptancePlan();return downloadFile('providets_airgap_acceptance_plan'+APP_VERSION.build+'.json',JSON.stringify(p,null,2),'application/json;charset=utf-8');}
 function renderAirGapAcceptancePlan(){const p=buildAirGapAcceptancePlan();const el=document.getElementById('airgapPlanResults');if(el)el.innerHTML='<b>Сценариев: '+p.tests.length+' · выполнено: 0 · статус: NOT_RUN</b>'+p.tests.map(t=>'<div style="padding:4px 0;border-top:1px solid var(--line)"><b>'+esc(t.id)+' · '+esc(t.area)+'</b><div>'+esc(t.test)+'</div><div class="hint">Доказательство: '+esc(t.evidence)+'</div></div>').join('')+'<div class="hint" style="margin-top:7px">Это план приёмки; выполнение и сбор доказательств остаются за испытательной группой.</div>';return p;}
 
 
@@ -4369,9 +4491,9 @@ async function verifySelectedArtifactSha256(){
  const maxHashFileBytes=100*1024*1024;
  if(!isArtifactHashFileSizeAllowed(file.size,maxHashFileBytes)){if(out)out.innerHTML='<b>Файл превышает лимит проверки SHA-256 (100 МиБ).</b><div class="hint">Для больших файлов используйте системную утилиту SHA-256.</div>';return {result:'FILE_TOO_LARGE',fileName:file.name,fileSizeBytes:file.size,maxBytes:maxHashFileBytes};}
  if(typeof crypto==='undefined'||!crypto.subtle||typeof crypto.subtle.digest!=='function'){if(out)out.innerHTML='<b>Web Crypto недоступен в этой среде.</b><div class="hint">Проверьте в поддерживаемом защищённом контексте или используйте системную утилиту SHA-256.</div>';return {result:'CRYPTO_UNAVAILABLE',fileName:file.name};}
- try{const buf=await file.arrayBuffer();const digest=await crypto.subtle.digest('SHA-256',buf);const actual=Array.from(new Uint8Array(digest)).map(b=>b.toString(16).padStart(2,'0')).join('');const match=actual===expected;const r={system:'АИС «Техноконтур» / «Провидец»',program:"v100.0.0",kind:'local-artifact-sha256-verification',status:'computed_hash_compared_with_user_supplied_expected_value',generatedAt:new Date().toISOString(),fileName:file.name,fileSizeBytes:file.size,expectedSha256:expected,actualSha256:actual,result:match?'MATCH':'MISMATCH',trustNote:'Проверка сравнивает файл с введённым digest. Она не удостоверяет источник ожидаемого хеша и не проверяет цифровую подпись манифеста.'};window.__tcArtifactHashResult=r;if(out)out.innerHTML='<b style="color:'+(match?'var(--green)':'var(--red)')+'">'+(match?'SHA-256 совпадает':'SHA-256 НЕ СОВПАДАЕТ')+'</b><div class="hint" style="word-break:break-all;margin-top:5px">Файл: '+esc(file.name)+' ('+file.size+' байт)<br>Фактический SHA-256: '+esc(actual)+'</div><div class="hint">Совпадение подтверждает только соответствие введённому хешу. Источник хеша должен быть доверенным.</div>';toast(match?'SHA-256 совпадает с введённым значением.':'Контрольная сумма отличается. Не используйте этот артефакт до выяснения причины.',match?'ok':'error','P0 · целостность');return r;}catch(e){const r={result:'ERROR',fileName:file.name,error:String(e&&e.message||e).slice(0,200)};window.__tcArtifactHashResult=r;if(out)out.innerHTML='<b>Не удалось вычислить SHA-256.</b><div class="hint">'+esc(r.error)+'</div>';return r;}
+ try{const buf=await file.arrayBuffer();const digest=await crypto.subtle.digest('SHA-256',buf);const actual=Array.from(new Uint8Array(digest)).map(b=>b.toString(16).padStart(2,'0')).join('');const match=actual===expected;const r={system:'АИС «Техноконтур» / «Провидец»',program:ver(),kind:'local-artifact-sha256-verification',status:'computed_hash_compared_with_user_supplied_expected_value',generatedAt:new Date().toISOString(),fileName:file.name,fileSizeBytes:file.size,expectedSha256:expected,actualSha256:actual,result:match?'MATCH':'MISMATCH',trustNote:'Проверка сравнивает файл с введённым digest. Она не удостоверяет источник ожидаемого хеша и не проверяет цифровую подпись манифеста.'};window.__tcArtifactHashResult=r;if(out)out.innerHTML='<b style="color:'+(match?'var(--green)':'var(--red)')+'">'+(match?'SHA-256 совпадает':'SHA-256 НЕ СОВПАДАЕТ')+'</b><div class="hint" style="word-break:break-all;margin-top:5px">Файл: '+esc(file.name)+' ('+file.size+' байт)<br>Фактический SHA-256: '+esc(actual)+'</div><div class="hint">Совпадение подтверждает только соответствие введённому хешу. Источник хеша должен быть доверенным.</div>';toast(match?'SHA-256 совпадает с введённым значением.':'Контрольная сумма отличается. Не используйте этот артефакт до выяснения причины.',match?'ok':'error','P0 · целостность');return r;}catch(e){const r={result:'ERROR',fileName:file.name,error:String(e&&e.message||e).slice(0,200)};window.__tcArtifactHashResult=r;if(out)out.innerHTML='<b>Не удалось вычислить SHA-256.</b><div class="hint">'+esc(r.error)+'</div>';return r;}
 }
-function exportArtifactHashResult(){const r=window.__tcArtifactHashResult;if(!r){toast('Сначала выполните проверку файла.','error','P0 · целостность');return null;}return downloadFile('providets_artifact_hash_check_v100.json',JSON.stringify(r,null,2),'application/json;charset=utf-8');}
+function exportArtifactHashResult(){const r=window.__tcArtifactHashResult;if(!r){toast('Сначала выполните проверку файла.','error','P0 · целостность');return null;}return downloadFile('providets_artifact_hash_check'+APP_VERSION.build+'.json',JSON.stringify(r,null,2),'application/json;charset=utf-8');}
 
 
 /* P0.23: release readiness gate. Human evidence checklist; no automatic certification. */
@@ -4388,13 +4510,13 @@ const TC_RELEASE_GATE_ITEMS=[
  {id:'REL-10',label:'Акт приёмки подписан ответственными лицами',owner:'Acceptance board'}
 ];
 function renderReleaseReadinessGate(){const el=document.getElementById('releaseGateResults');if(!el)return;const checked=TC_RELEASE_GATE_ITEMS.filter(x=>{const c=document.getElementById('gate_'+x.id);return c&&c.checked;});const missing=TC_RELEASE_GATE_ITEMS.filter(x=>!checked.includes(x));el.innerHTML='<b>Отмечено подтверждений: '+checked.length+'/'+TC_RELEASE_GATE_ITEMS.length+'</b><div style="margin-top:5px;color:var(--red);font-weight:700">'+(missing.length?'ВЫПУСК НЕ ПОДТВЕРЖДЁН — осталось '+missing.length+' обязательных пунктов':'Все пункты отмечены пользователем; требуется независимая проверка доказательств')+'</div><div class="hint" style="margin-top:5px">Флажки — самоотметка. Этот интерфейс не проверяет подписи, журналы или реальные испытания и не выдаёт сертификат готовности.</div>';return {checked:checked.map(x=>x.id),missing:missing.map(x=>x.id)};}
-function exportReleaseReadinessGate(){const checked=TC_RELEASE_GATE_ITEMS.filter(x=>{const c=document.getElementById('gate_'+x.id);return c&&c.checked;});const payload={system:'АИС «Техноконтур» / «Провидец»',program:"v100.0.0",kind:'release-readiness-self-attestation',status:'self_attested_not_independently_verified',generatedAt:new Date().toISOString(),items:TC_RELEASE_GATE_ITEMS.map(x=>({...x,checked:checked.some(y=>y.id===x.id)})),summary:{checked:checked.length,total:TC_RELEASE_GATE_ITEMS.length,readyForIndependentReview:checked.length===TC_RELEASE_GATE_ITEMS.length},warning:'This is a user self-attestation checklist, not an acceptance certificate or cryptographic proof.'};return downloadFile('providets_release_readiness_gate_v100.json',JSON.stringify(payload,null,2),'application/json;charset=utf-8');}
+function exportReleaseReadinessGate(){const checked=TC_RELEASE_GATE_ITEMS.filter(x=>{const c=document.getElementById('gate_'+x.id);return c&&c.checked;});const payload={system:'АИС «Техноконтур» / «Провидец»',program:ver(),kind:'release-readiness-self-attestation',status:'self_attested_not_independently_verified',generatedAt:new Date().toISOString(),items:TC_RELEASE_GATE_ITEMS.map(x=>({...x,checked:checked.some(y=>y.id===x.id)})),summary:{checked:checked.length,total:TC_RELEASE_GATE_ITEMS.length,readyForIndependentReview:checked.length===TC_RELEASE_GATE_ITEMS.length},warning:'This is a user self-attestation checklist, not an acceptance certificate or cryptographic proof.'};return downloadFile('providets_release_readiness_gate'+APP_VERSION.build+'.json',JSON.stringify(payload,null,2),'application/json;charset=utf-8');}
 
 
 RENDERERS.about=function(){
   return pageHead("О системе · АИС «Техноконтур»",
     'Автоматизированная информационная система поддержки принятия решений для работы с предприятиями отрасли телекоммуникаций, вычислительной техники и средств связи. Шифр темы — «Провидец»: заблаговременное выявление технологических разрывов, рисков и точек роста.',
-    'ТЗ версия 4.0 · программа v100.0.0 · 13 задач · 15 модулей · 10 ИВП · 92 поля паспорта · 10 приложений к ТЗ')+
+    'ТЗ версия '+APP_VERSION.tz+' · программа '+ver()+' · 13 задач · 15 модулей · 10 ИВП · 92 поля паспорта · 10 приложений к ТЗ')+
   '<div class="card" style="margin-bottom:14px;border-color:rgba(96,165,250,.35)"><h3>📦 P0.44 · Сводный пакет доказательств</h3><div class="hint">Собирает локальные отчёты целостности, импорта и Air-Gap. Не заменяет браузерную/серверную приёмку; невыполненные испытания остаются NOT_RUN.</div><button class="btn ac" onclick="exportP0EvidenceBundle()" style="margin-top:8px">⇩ Экспорт P0 evidence bundle</button></div>'+
   '<div class="card" style="margin-bottom:14px;border-color:rgba(251,191,36,.35)"><h3>🛡 P0 · Самотест сетевой политики</h3><div class="hint">Проверяет правила URL в автономном варианте без отправки сетевых запросов. Это локальная проверка логики, не подтверждение физической изоляции или браузерного egress-контроля.</div><button class="btn ac" onclick="runNetworkPolicySelfTest()" style="margin-top:8px">▶ Выполнить 7 проверок</button> <button class="btn" onclick="exportNetworkPolicySelfTest()" style="margin-top:8px">⇩ Экспорт JSON-отчёта</button><div id="netPolicyTestResults" class="hint" style="margin-top:10px">Самотест ещё не запускался.</div></div>'+
   '<div class="card" style="margin-bottom:14px;border-color:rgba(251,191,36,.35)"><h3>🔎 P0.15 · Инвентаризация загружаемых ресурсов</h3><div class="hint">Сканирует ресурсы, присутствующие в DOM на текущем экране: script, link, img, iframe, media, формы и встроенные обработчики событий. Это диагностика, а не блокировка и не доказательство отсутствия сетевого выхода.</div><button class="btn ac" onclick="renderResourceInventory()" style="margin-top:8px">▶ Сканировать DOM</button> <button class="btn" onclick="exportResourceInventory()" style="margin-top:8px">⇩ Экспорт JSON</button><div id="resourceInventoryResults" class="hint" style="margin-top:10px">Инвентаризация ещё не запускалась.</div></div>'+
@@ -4457,6 +4579,7 @@ RENDERERS.about=function(){
   '<div class="sec-title">История версий программы</div><div class="iam-note"><b>P0 · Контроль выпуска:</b> промышленная поставка требует подписанного манифеста, SHA-256 для каждого файла, перечня зависимостей, протокола испытаний и плана отката. Подпись не проверяется этим HTML; текущий файл остаётся прототипом до независимой проверки артефактов.</div>'+
   '<div class="tbl-wrap" style="margin-bottom:14px"><table class="tbl"><thead><tr><th>Версия</th><th>Дата</th><th>Изменения</th></tr></thead><tbody>'+
    [
+    ["v101.0.0","26.10.2026","Волна 0 плана улучшений (P3.1–P3.8, план plan_uluchsheniy_v100.md): (1) единый источник версии — константа APP_VERSION + ver()/verNum(): устранены хардкоды литералов текущей версии в отчётах, самодиагностике, UI и именах JSON-экспортов (16 имён теперь получают суффикс из APP_VERSION.build; исправлен рассинхрон имени first_admin_runbook); (2) ровно один meta-тег providets-release-version (устаревшие v97/v98/v99 удалены), синхронизируется из константы; (3) доступность: тосты — role=status + aria-live=polite (ошибочные — alert/assertive); боковая навигация — nav с aria-label, пункты role=button, tabindex=0, aria-current=page, data-page, полное управление с клавиатуры (Tab, Enter/Space) через один делегированный обработчик; (4) вместо блокирующих window.confirm/window.prompt — немодальный доступный диалог tcDialog (role=dialog, aria-modal, фокус-ловушка, Esc — отмена, Enter — подтверждение, возврат фокуса): подтверждение восстановления снимка и ввод MFA-кода; (5) deep-linking: синхронизация страницы с location.hash, обработка hashchange/popstate, кнопка «назад» браузера работает, после входа восстанавливается страница из хэша; (6) офлайн-карта: Leaflet 1.9.4 включён в поставку (vendor/leaflet/ + LICENSE + images/), CDN-режим загружается с SRI sha256 и crossorigin=anonymous; (7) CHANGELOG.md в корне репозитория и раздел «Что нового» в справочном центре (F1); (8) новые встроенные smoke-проверки REL-VER-02, A11Y-01, NAV-01, DL-01, GEO-SRI-01. Совместимость: демо-режим и киоск не изменены; снимки данных v100 восстанавливаются без ограничений (валидатор схемы не привязан к версии программы)."],
     ["v100.0.0","18.10.2026","Этап 9 — объединение двух веток разработки и устранение критического дефекта: (1) к закалённой клиентской ветке (v13–v82, работы P0.1–P0.59: XSS/URL-валидация, лимиты ответов API, эпохи сессии, атомарный bootstrap, снимки данных с CRC32 и самодиагностикой, Air-Gap-политика, SBOM-реестр, контрольные ворота выпуска) подключён серверный мост Этапа 8 — MOD-KPI (регламентный пересчёт из СУБД, телеметрия KPI-2/4/5/8, kpi.threshold_breached → авто-санкция MOD-STIM по Прил. 1.6), MOD-EXPERT (детерминированное назначение экспертов, заключения с серверной цепочкой ИВП-1→ИВП-2: арбитраж → паспорт верифицирован → стимул → цифровой двойник, SLA ≤ 8 ч), MOD-DOC (неизменяемый поток Проект → На подписании → Подписан (ЭЦП) → Утверждён, серверная карточка и аудит), MOD-AI (детерминированная модель v4.0-srv: tech-gap к порогу суверенитета 75 %, риск срыва контрольных точек, 6 правил рекомендаций, публикация при confidence ≥ 0.7), MOD-STIM (каталог мер, автоприменение по событиям шины); мост активен только в серверном режиме, демо-режим не изменён, все запросы проходят через закалённый srvApi (валидация адреса, лимит размера ответа, эпоха сессии, таймаут 30 с); (2) исправлен критический дефект страницы «О системе»: malformed-структура массива истории версий приводила к тому, что comma-оператор отбрасывал всё содержимое страницы до истории, а записи v49–v82 не отображались — история реконструирована единым массивом с сортировкой от новых к старым; (2b) исправлены пять дефектов встроенной самодиагностики закалённой ветки: очистка диагностического текста не срабатывала для JSON-ключей в кавычках (api_key, session_id — секрет попадал в отчёты); регекс негативного теста самоссылки организации не совпадал с фактическим сообщением валидатора; проверка сводного P0-пакета вызывала асинхронный сборщик синхронно (выделен синхронный buildP0EvidenceBundleCore); цифровой двойник для негативных тестов снимков отсутствовал до первого открытия MOD-PASS/MOD-PROF — добавлена стартовая сборка двойника E03 (организации, не затрагиваемой негативными тестами); негативные тесты ID организаций не учитывали двойники — копия снимка в тесте теперь исключает двойник переименованной организации (изоляция проверяемого валидатора); (3) унифицированы версионные метаданные (экран входа, примечание прототипа, «О системе», футер, тур оператора, план Фаз 0–6, SBOM, диагностические отчёты и имена JSON-экспортов _v100) — устранён разнобой v82/74/49/37/12; (4) проверки: бэкенд — 80 серверных тестов (pytest, Этапы 1–8), клиент — встроенные smoke-тесты 20 + объединённый набор DOM-тестов Этапа 9, live-сценарий 12 проверок (uvicorn + HTTP-цепочки Этапа 8)"],
     ["v82.0.0","17.10.2026","P0.56: расширен реестр приёмки импорта/восстановления: добавлены проверяемые точки отказа до commit, во время commit и после rollback, статусы явно остаются NOT_RUN до испытания в браузере."],
     ["v80.0.0","17.10.2026","P0.55: усилена изоляция polling по поколению сессии: событие принимается только в том поколении, в котором был начат опрос; добавлены проверки контрактов session epoch."],
@@ -4539,7 +4662,7 @@ RENDERERS.about=function(){
    ]
    .map(([v,d,c])=>'<tr><td class="mono" style="color:var(--acc2);font-weight:700">'+v+'</td><td class="mono" style="color:var(--tx3)">'+d+'</td><td style="color:var(--tx2)">'+c+"</td></tr>").join("")+
   "</tbody></table></div>"+
-  '<div class="footer-note">Программа-прототип по ТЗ версии 4.0 · демонстрационные модельные данные · сохраняются только настройки интерфейса (без бизнес-данных и токенов) · единый HTML-файл<br>АИС «Техноконтур» | шифр темы «Провидец» | программа v100.0.0 | '+today()+"</div>";
+  '<div class="footer-note">Программа-прототип по ТЗ версии 4.0 · демонстрационные модельные данные · сохраняются только настройки интерфейса (без бизнес-данных и токенов) · единый HTML-файл<br>АИС «Техноконтур» | шифр темы «Провидец» | программа '+ver()+' | '+today()+"</div>";
 };
 
 /* ================= MOD-GEO · ГЕОПОДДЕРЖКА ================= */
@@ -4855,7 +4978,7 @@ function exportKML(){
 
 /* ================= ГИД-ТУР ОПЕРАТОРА ================= */
 const TOUR=[
- {t:"Добро пожаловать в АИС «Техноконтур»",x:"Шифр темы «Провидец». Программа v100.0.0 по ТЗ версии 4.0. Архитектура «Ядро + Модули»: 15 модулей взаимодействуют исключительно через ядро. Тур займёт ~минуту — кнопка «Завершить» доступна на любом шаге."},
+ {t:"Добро пожаловать в АИС «Техноконтур»",x:"Шифр темы «Провидец». Программа "+ver()+" по ТЗ версии "+APP_VERSION.tz+". Архитектура «Ядро + Модули»: 15 модулей взаимодействуют исключительно через ядро. Тур займёт ~минуту — кнопка «Завершить» доступна на любом шаге."},
  {t:"Верхняя панель",x:"Бейдж варианта поставки (А «Сеть» / Б «Контур» air-gap), живой тикер шины событий ядра, глобальный поиск по предприятиям, проектам и рискам, служба уведомлений и текущая роль IAM.",sel:"#topbar"},
  {t:"Навигация",x:"Секция ЯДРА: панель управления, реестр модулей, шина событий, монитор ИВП, журнал аудита. Ниже — обязательные и опциональные модули; точка-индикатор показывает статус модуля (зелёная — активен).",sel:"#sidebar"},
  {t:"Панель управления",x:"KPI отрасли (ТЗ п.2.3), статусы паспортов, динамика охвата, средняя TRL по округам, топ-риски и проекты на контрольных точках. Все агрегаты поступают через ядро.",page:"dashboard",sel:"#main"},
@@ -5165,7 +5288,7 @@ function exportNetworkPolicySelfTest(){
   const report=window.__tcNetworkPolicySelfTest;
   if(!report){toast("Сначала выполните самотест сетевой политики.","warn","P0 · Air-Gap");return false;}
   const payload=JSON.stringify(report,null,2);
-  return downloadFile("providets_network_policy_selftest_v100.json",payload,"application/json;charset=utf-8");
+  return downloadFile("providets_network_policy_selftest"+APP_VERSION.build+".json",payload,"application/json;charset=utf-8");
 }
 /* P0.7: deterministic policy checks. No requests are sent by this test. */
 function runNetworkPolicySelfTest(){
@@ -5182,7 +5305,7 @@ function runNetworkPolicySelfTest(){
     test("Политика отклоняет внешний адрес",()=>{try{assertNetworkPolicy("https://example.com/pixel","Self-test");return false;}catch(e){return /внешний адрес запрещён/.test(String(e.message||e));}});
   }finally{state.variant=oldVariant;}
   const guardStatus={fetch:!!window.__tcFetchGuardInstalled,xhr:!!(window.XMLHttpRequest&&XMLHttpRequest.prototype.__tcGuardedOpen),webSocket:!!(window.WebSocket&&window.WebSocket.__tcGuarded),eventSource:!!(window.EventSource&&window.EventSource.__tcGuarded),sendBeacon:!!(navigator.sendBeacon&&navigator.sendBeacon.__tcGuarded),egressGuardInstaller:!!window.__tcEgressGuardsInstalled};
-  window.__tcNetworkPolicySelfTest={system:"АИС «Техноконтур»",program:"v100.0.0",executedAt:new Date().toISOString(),variantTested:"autonomous",networkRequestsSent:0,total:results.length,passed:results.filter(x=>x.ok).length,failed:results.filter(x=>!x.ok).length,results,guardStatus,guardCoverageNote:"Инвентаризация наличия клиентских перехватчиков; не доказывает блокирование всех путей выхода и не заменяет сетевой контроль ОС/межсетевого экрана."};
+  window.__tcNetworkPolicySelfTest={system:"АИС «Техноконтур»",program:ver(),executedAt:new Date().toISOString(),variantTested:"autonomous",networkRequestsSent:0,total:results.length,passed:results.filter(x=>x.ok).length,failed:results.filter(x=>!x.ok).length,results,guardStatus,guardCoverageNote:"Инвентаризация наличия клиентских перехватчиков; не доказывает блокирование всех путей выхода и не заменяет сетевой контроль ОС/межсетевого экрана."};
   const out=document.getElementById("netPolicyTestResults");
   if(out)out.innerHTML='<div style="font-weight:700;margin-bottom:6px">Результат: '+window.__tcNetworkPolicySelfTest.passed+'/'+results.length+' пройдено; запросы не отправлялись.</div>'+results.map(r=>'<div style="padding:3px 0;color:'+(r.ok?'var(--green,#34d399)':'var(--red,#fb7185)')+'">'+(r.ok?'✓ ':'✗ ')+r.name+(r.detail?' — '+esc(r.detail):'')+'</div>').join("")+'<div style="margin-top:8px;font-weight:700">Установленные перехватчики браузера</div>'+Object.entries(guardStatus).map(([k,v])=>'<div style="padding:2px 0">'+(v?'✓ ':'⚠ ')+esc(k)+': '+(v?'обнаружен':'не обнаружен')+'</div>').join("");
   if(window.__tcNetworkPolicySelfTest.failed)toast("Самотест сетевой политики: ошибки "+window.__tcNetworkPolicySelfTest.failed+" из "+results.length+". Подробности — в разделе «О системе».","err","P0 · Air-Gap");
@@ -5352,7 +5475,8 @@ async function srvTryLogin(){
   let r=await srvApi("/api/v1/auth/login",{method:"POST",body:JSON.stringify(body),skipAuth:true});
   assertLoginAttemptCurrent();
   if(r&&r.mfa_required){
-    const code=window.prompt("MFA (TOTP) для роли "+login.toUpperCase()+": введите 6-значный код");
+    /* P3.4 (v101): блокирующий нативный ввод заменён доступным диалогом tcPrompt */
+    const code=await tcPrompt("Двухфакторная аутентификация (MFA)","MFA (TOTP) для роли "+login.toUpperCase()+": введите 6-значный код из приложения-аутентификатора.","Код MFA · 6 цифр",{okText:"Подтвердить",cancelText:"Отмена",inputNumeric:true,inputMaxlength:8,inputAutocomplete:"one-time-code",inputPlaceholder:"000000"});
     if(!code)throw new Error("MFA отменен");
     if(!/^\d{6}$/.test(String(code).trim()))throw new Error("Код MFA должен содержать ровно 6 цифр.");
     body.mfa_code=String(code).trim();
@@ -5442,7 +5566,7 @@ function srvStartPolling(){
 
 
 /* P0.57: first-admin provisioning contract. Documentation only; this HTML never creates a server account. */
-const TC_FIRST_ADMIN_RUNBOOK={system:"АИС «Техноконтур» / «Провидец»",program:"v100.0.0",kind:"first-admin-provisioning-runbook",status:"requirements_only_backend_not_present",steps:[
+const TC_FIRST_ADMIN_RUNBOOK={system:"АИС «Техноконтур» / «Провидец»",program:ver(),kind:"first-admin-provisioning-runbook",status:"requirements_only_backend_not_present",steps:[
 {id:"ADM-01",title:"Развернуть API в доверенном контуре",detail:"Секреты не помещать в HTML, URL, логи, репозиторий или клиентские настройки."},
 {id:"ADM-02",title:"Задать bootstrap-секрет вне кода",detail:"Использовать секрет хранилище/переменную окружения с ограниченными правами; не использовать постоянный пароль по умолчанию."},
 {id:"ADM-03",title:"Создать первого администратора одноразовой серверной командой",detail:"Команда должна быть идемпотентной: не перезаписывать существующего администратора; требовать интерактивного ввода/защищённого канала."},
@@ -5451,7 +5575,7 @@ const TC_FIRST_ADMIN_RUNBOOK={system:"АИС «Техноконтур» / «Пр
 {id:"ADM-06",title:"Проверить вход и аудит",detail:"Проверить неверный пароль, блокировку/ограничение частоты, отзыв сессии, MFA для привилегированных ролей и серверный аудит."},
 {id:"ADM-07",title:"Проверить транспорт",detail:"Не передавать пароль по незашифрованной сети; localhost допустим только для локального тестирования."}],
 requiredBackendArtifacts:["исходный код FastAPI и зависимости","схема БД и миграции пользователей/ролей","команда первичного администратора","политика паролей и хеширования","JWT access/refresh lifecycle","серверные тесты IAM и audit"],limitations:["HTML не содержит реализации FastAPI/БД и не может безопасно создать серверную учётную запись.","Это руководство и контракт требований, не исполняемая процедура создания пользователя.","Не задавайте единый пароль по умолчанию и не встраивайте пароль в HTML."]};
-function exportFirstAdminRunbook(){const r={...TC_FIRST_ADMIN_RUNBOOK,generatedAt:new Date().toISOString()};downloadFile("providets_first_admin_runbook_v82.json",JSON.stringify(r,null,2),"application/json;charset=utf-8");toast("Экспортировано руководство первичной настройки; учётная запись не создавалась.","ok","IAM");return r;}
+function exportFirstAdminRunbook(){const r={...TC_FIRST_ADMIN_RUNBOOK,generatedAt:new Date().toISOString()};downloadFile("providets_first_admin_runbook_"+APP_VERSION.build+".json",JSON.stringify(r,null,2),"application/json;charset=utf-8");toast("Экспортировано руководство первичной настройки; учётная запись не создавалась.","ok","IAM");return r;}
 
 
 /* P0.58: sanitize authentication errors shown in the client; detailed diagnostics belong in protected server logs. */
@@ -5636,6 +5760,8 @@ function leafletLoad(cb){
   css.href=localOnly?"./vendor/leaflet/leaflet.css":"https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
   const js=document.createElement("script");
   js.src=localOnly?"./vendor/leaflet/leaflet.js":"https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
+  /* P3.7 (v101): CDN-режим — контроль целостности SRI (SHA-256); локальный режим — файлы из поставки */
+  if(!localOnly){css.integrity=TC_LEAFLET_SRI.css;css.crossOrigin="anonymous";js.integrity=TC_LEAFLET_SRI.js;js.crossOrigin="anonymous";}
   const done=ok=>{SRV._lLoading=false;(SRV._lQueue||[]).forEach(f=>{try{f(ok);}catch(e){}});SRV._lQueue=[];cb(ok);};
   js.onload=()=>done(true);
   js.onerror=()=>done(false);
@@ -6350,6 +6476,57 @@ logout=function(){
   };
 })();
 
+</script>
+
+<script>
+/* ==================================================================
+   ЭТАП 10 / v101.0.0 — ВОЛНА 0 ПЛАНА УЛУЧШЕНИЙ: рантайм-активация P3.
+   P3.2: meta и видимые версии синхронизируются из APP_VERSION (единый источник).
+   P3.5: клавиатурная навигация сайдбара — один делегированный обработчик
+         (Enter/Space на .nav-item[data-page]); новых inline-атрибутов нет.
+   P3.6: deep-linking — hashchange/popstate → showPage; до входа хэш не
+         применяется (страница восстановится после входа через enterApp).
+   Вспомогательные функции (tcDialog, parseHashPage, deepLinkSync, ver)
+   определены в главном скрипте.
+   ================================================================== */
+(function(){
+ "use strict";
+ function syncVersionMeta(){
+   try{
+     var m=document.querySelector('meta[name="providets-release-version"]');
+     if(!m){m=document.createElement("meta");m.setAttribute("name","providets-release-version");document.head.appendChild(m);}
+     m.setAttribute("content",ver());
+     var head=document.getElementById("loginVerLine");
+     if(head)head.textContent="Шифр темы «Провидец» · ТЗ "+APP_VERSION.tz+" · программа "+ver();
+     var els=document.querySelectorAll("[data-tc-ver]");
+     for(var i=0;i<els.length;i++){
+       var k=els[i].getAttribute("data-tc-ver");
+       if(k==="num")els[i].textContent=verNum();
+       else if(k==="tz")els[i].textContent=APP_VERSION.tz;
+       else if(k==="str")els[i].textContent=ver();
+     }
+   }catch(e){/* синхронизация версии не должна ломать запуск */}
+ }
+ function onDeepLinkNav(){
+   if(DL_LOCK.v)return;
+   var app=document.getElementById("app");
+   if(!app||app.style.display!=="grid")return; /* до входа хэш игнорируется */
+   var hp=parseHashPage();
+   if(hp&&hp!==state.page){DL_LOCK.v=true;try{showPage(hp);}finally{DL_LOCK.v=false;}}
+ }
+ window.addEventListener("hashchange",onDeepLinkNav);
+ window.addEventListener("popstate",onDeepLinkNav);
+ document.addEventListener("keydown",function(e){
+   if(e.key!=="Enter"&&e.key!==" "&&e.key!=="Spacebar")return;
+   var t=e.target&&e.target.closest?e.target.closest(".nav-item[data-page]"):null;
+   if(!t)return;
+   e.preventDefault();
+   var p=t.getAttribute("data-page");
+   if(p)showPage(p);
+ },true);
+ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",syncVersionMeta);
+ else syncVersionMeta();
+})();
 </script>
 </body>
 </html>

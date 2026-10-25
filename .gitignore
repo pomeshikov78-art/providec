@@ -1,0 +1,18 @@
+# зависимости и артефакты тестов
+node_modules/
+package-lock.json
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+
+# локальные БД и журналы
+*.db
+*.db-journal
+backend/technocontour.db
+
+# ОС/редакторы
+.DS_Store
+Thumbs.db
+*.swp
