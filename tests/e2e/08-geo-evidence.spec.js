@@ -11,8 +11,8 @@ test('8.1 MOD-GEO по умолчанию: SVG-карта без внешних 
   await login(page, 'L7');
   await page.evaluate(() => showPage('geo', true));
   await expect(page.locator('#main svg').first()).toBeVisible();
-  // внешними считаем все http(s)-запросы, кроме собственного http-стенда
-  const external = reqs.filter(u => /^https?:/.test(u) && !u.includes('127.0.0.1:8817'));
+  // внешними считаем все http(s)-запросы, кроме собственного стенда (любой loopback-порт)
+  const external = reqs.filter(u => /^https?:/.test(u) && !/^https?:\/\/(127\.0\.0\.1|localhost|\[::1\])(:\d+)?\//.test(u));
   expect(external, 'внешние запросы: ' + external.join(',')).toEqual([]);
 });
 
@@ -73,27 +73,30 @@ test('8.4 дорожная карта: панели P1–P5, ворота вып
   expect(errs, errs.join('|')).toEqual([]);
 });
 
-test('8.5 «О системе»: история версий v101 → v100 → v82, запись v101 описывает Волну 0', async ({ page }) => {
+test('8.5 «О системе»: история версий v102 → v101 → v100 → v82', async ({ page }) => {
   await login(page, 'L7');
   await page.evaluate(() => showPage('about', true));
   const html = await page.evaluate(() => document.getElementById('main').innerHTML);
+  const i102 = html.indexOf('>v102.0.0<');
   const i101 = html.indexOf('>v101.0.0<');
   const i100 = html.indexOf('>v100.0.0<');
   const i82 = html.indexOf('>v82.0.0<');
-  expect(i101).toBeGreaterThan(-1);
+  expect(i102).toBeGreaterThan(-1);
+  expect(i102).toBeLessThan(i101);
   expect(i101).toBeLessThan(i100);
   expect(i100).toBeLessThan(i82);
+  expect(html).toContain('Д-10');
   expect(html).toContain('Волна 0 плана улучшений');
-  await expect(page.locator('#main')).toContainText('программа v101.0.0');
+  await expect(page.locator('#main')).toContainText('программа v102.0.0');
 });
 
 test('8.6 встроенные smoke-тесты (P0.19 + Волна 0): ≥ 25 проверок, 0 провалов', async ({ page }) => {
   await login(page, 'L7');
   const rep = await page.evaluate(() => runClientRegressionSmokeTests());
   expect(rep.summary.failed, JSON.stringify(rep.tests.filter(t => t.result !== 'PASS'))).toBe(0);
-  expect(rep.summary.total).toBeGreaterThanOrEqual(25);
-  expect(rep.program).toBe('v101.0.0');
-  for (const id of ['REL-VER-01', 'REL-VER-02', 'A11Y-01', 'NAV-01', 'DL-01', 'GEO-SRI-01']) {
+  expect(rep.summary.total).toBeGreaterThanOrEqual(26);
+  expect(rep.program).toBe('v102.0.0');
+  for (const id of ['REL-VER-01', 'REL-VER-02', 'A11Y-01', 'NAV-01', 'DL-01', 'GEO-SRI-01', 'SRV-LOGIN-01']) {
     expect(rep.tests.some(t => t.id === id && t.result === 'PASS'), `${id} не PASS`).toBe(true);
   }
 });

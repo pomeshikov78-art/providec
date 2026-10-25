@@ -1,0 +1,159 @@
+{
+ "system": "АИС «Техноконтур» / «Провидец»",
+ "program": "v101.0.0",
+ "kind": "live-platform-integration-protocol",
+ "status": "EXECUTED_LOCAL_SANDBOX_NOT_INDEPENDENT_ACCEPTANCE",
+ "executedAt": "2026-10-25T19:58:20.374342+00:00",
+ "apiBase": "http://127.0.0.1:8000",
+ "database": "technocontour.db",
+ "backendHealth": {
+  "status": "ok",
+  "app": "АИС «Техноконтур»",
+  "cipher": "Провидец",
+  "version": "1.0.0",
+  "variant": "network",
+  "modules": {
+   "total": 15,
+   "active": 15,
+   "degraded": [],
+   "disabled": []
+  }
+ },
+ "summary": {
+  "total": 17,
+  "passed": 15,
+  "failed": 2
+ },
+ "results": [
+  {
+   "id": "LP-01",
+   "title": "GET /api/v1/core/health — ядро живо",
+   "result": "PASS",
+   "detail": "ok",
+   "ms": 6
+  },
+  {
+   "id": "LP-02",
+   "title": "Негатив: вход с неверным паролем → 401",
+   "result": "PASS",
+   "detail": "401",
+   "ms": 85
+  },
+  {
+   "id": "LP-03",
+   "title": "Вход без MFA для L7 → mfa_required (без токена)",
+   "result": "PASS",
+   "detail": "mfa_required=True (TOTP для L7)",
+   "ms": 73
+  },
+  {
+   "id": "LP-04",
+   "title": "Полный вход: пароль + TOTP (секрет из СУБД) → JWT, роль L7",
+   "result": "PASS",
+   "detail": "JWT + role_level=L7 + fio='Крылов И. А. (администратор)' (TOTP из СУБД)",
+   "ms": 80
+  },
+  {
+   "id": "LP-05",
+   "title": "Негатив: bootstrap без токена → 401/403",
+   "result": "PASS",
+   "detail": "401",
+   "ms": 44
+  },
+  {
+   "id": "LP-06",
+   "title": "GET /bootstrap — витрина соответствует контракту клиента (srvApplyBootstrap)",
+   "result": "PASS",
+   "detail": "orgs=100, projects=12, risks=12, docs=8, stims=6, expert=5, modules=15, integrations=29",
+   "ms": 356
+  },
+  {
+   "id": "LP-07",
+   "title": "GET /core/modules — 15 модулей, 6 обязательных",
+   "result": "PASS",
+   "detail": "15/6",
+   "ms": 6
+  },
+  {
+   "id": "LP-08",
+   "title": "GET /geo/config — картооснова (tile_url, H3, KDE)",
+   "result": "PASS",
+   "detail": "tile_url=https://tile.openstreetmap.org/{z}/{x}/{",
+   "ms": 3
+  },
+  {
+   "id": "LP-09",
+   "title": "GET /core/events?limit=20 — ЖУРНАЛ-массив (контракт опроса клиента)",
+   "result": "PASS",
+   "detail": "list[3]",
+   "ms": 5
+  },
+  {
+   "id": "LP-10",
+   "title": "MOD-KPI: GET /kpis + POST /kpis/recalculate (регламентный пересчёт из СУБД)",
+   "result": "PASS",
+   "detail": "items=8, recalc period=IV квартал 2026",
+   "ms": 36
+  },
+  {
+   "id": "LP-11",
+   "title": "MOD-EXPERT: цепочка ИВП-1→ИВП-2 (назначение → заключение → passport.verified → стимул)",
+   "result": "FAIL",
+   "detail": "AssertionError: очередь экспертизы пуста",
+   "ms": 8
+  },
+  {
+   "id": "LP-12",
+   "title": "MOD-DOC: авторегистрация документа + неизменяемый поток статусов + карточка",
+   "result": "PASS",
+   "detail": "D-2026-0142: Проект → На подписании, карточка version=2",
+   "ms": 35
+  },
+  {
+   "id": "LP-13",
+   "title": "MOD-AI: детерминированный прогнозный цикл + принятие рекомендации",
+   "result": "FAIL",
+   "detail": "KeyError: 'rid'",
+   "ms": 328
+  },
+  {
+   "id": "LP-14",
+   "title": "Graceful degradation: отключённый модуль → 503, включение восстанавливает",
+   "result": "PASS",
+   "detail": "MOD-AI off→503, on→200 (ТЗ п.4.4.2)",
+   "ms": 206
+  },
+  {
+   "id": "LP-15",
+   "title": "WORM-аудит: хеш-цепочка sha256 сверяется, записи операций присутствуют",
+   "result": "PASS",
+   "detail": "записей в хвосте=12",
+   "ms": 11
+  },
+  {
+   "id": "LP-16",
+   "title": "Экспорт ФАКТИЧЕСКОГО OpenAPI из живого приложения (ART-02)",
+   "result": "PASS",
+   "detail": "путей=64, экспортирован фактический контракт: openapi_providets.json + openapi_providets.yaml",
+   "ms": 130
+  },
+  {
+   "id": "LP-17",
+   "title": "Отзыв сессии: logout инвалидирует access-токен",
+   "result": "PASS",
+   "detail": "logout → токен отозван (jti blacklist), повторный доступ 401",
+   "ms": 12
+  }
+ ],
+ "chainEvidence": {
+  "expert": null,
+  "document": "D-2026-0142",
+  "ai": null
+ },
+ "limitations": [
+  "Испытания выполнены локально (песочница разработки, SQLite, in-process шина) — это не независимая приёмочная процедура.",
+  "Протокол подтверждает фактические HTTP-контракты и событийные цепочки на момент прогона, но не заменяет нагрузочные испытания, ИБ-аудит и проверку варианта Б на физически изолированной сети.",
+  "Клиентская сторона (браузер) проверяется отдельно: E2E Playwright (tests/e2e/10-server-mode.spec.js) и DOM-тесты.",
+  "TOTP-секрет читается напрямую из СУБД стенда — в промышленном контуре выдаётся через процедуру регистрации администратора (TC_FIRST_ADMIN_RUNBOOK)."
+ ]
+}

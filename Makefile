@@ -1,5 +1,5 @@
 # АИС «Техноконтур» — команды разработки и эксплуатации
-.PHONY: install dev test lint up down logs build wave0 verify test-dom demo clean
+.PHONY: install dev test lint up down logs build wave0 v102 verify test-dom test-e2e test-e2e-srv platform demo clean
 
 install:            ## установка зависимостей бэкенда
 	pip install -r backend/requirements.txt
@@ -18,15 +18,24 @@ lint:
 wave0:              ## сборка v101 из v100 — Волна 0 плана улучшений (детерминированная, с валидацией)
 	python3 src10/patch_v101.py
 
-verify:             ## статическая верификация v101 по критериям приёмки 0.1–0.8
-	sh src10/verify_v101.sh
+v102:               ## сборка v102 из v101 — «Рабочая платформа» (фикс Д-10), детерминированная
+	python3 src11/patch_v102.py
 
-test-dom:           ## DOM-тесты клиента v101 (jsdom, 87 проверок; требуется установленный jsdom)
-	cd /tmp && NODE_PATH=$(or $(NODE_PATH),/home/user/testenv/node_modules) node -e \
-	  "process.argv[2]='$(CURDIR)/ais_providets_v101.html'; require('$(CURDIR)/src10/test_dom_v101.js')"
+verify:             ## статическая верификация актуального выпуска (Волна 0 + Д-10)
+	sh src11/verify_v102.sh
 
-test-e2e:           ## E2E-тесты клиента (Playwright, 63 сценария × file:// и http://; см. tests/README.md)
-	npx playwright test --config tests/playwright.config.js
+test-dom:           ## DOM-тесты клиента v102 (jsdom, 89 проверок; jsdom из node_modules)
+	cd /tmp && NODE_PATH=$(CURDIR)/node_modules node -e \
+	  "process.argv[2]='$(CURDIR)/ais_providets_v102.html'; require('$(CURDIR)/src11/test_dom_v102.js')"
+
+test-e2e:           ## E2E демо-стенды (Playwright: file:// + http://, 63×2 сценария; см. tests/README.md)
+	npx playwright test --config tests/playwright.config.js --project=file --project=http
+
+test-e2e-srv:       ## E2E платформенный стенд (клиент против живого FastAPI, 10 сценариев)
+	TC_WITH_BACKEND=1 npx playwright test --config tests/playwright.config.js --project=srv
+
+platform:           ## живой протокол интеграции платформы (17 проверок LP-01…LP-17 против реального API)
+	sh src10/run_platform.sh
 
 build:              ## ВНИМАНИЕ: конвейер src/ заморожен на v13 (исторический). Актуальная сборка — `make wave0`.
 	@echo "Конвейер src/assemble.sh соответствует исторической линейке v13 и НЕ собирает актуальный выпуск." >&2; \
@@ -47,7 +56,7 @@ metrics:            ## проверить Prometheus-метрики
 	python -c "import urllib.request;print(urllib.request.urlopen('http://localhost:8000/metrics').read().decode())"
 
 demo:               ## демо: открыть клиент (демо-режим либо серверный: http://localhost:8000)
-	python -c "print('Откройте ais_providets.html (v101): демо-режим — выбрать роль и войти; серверный режим — включите тумблер, укажите http://localhost:8000, логин admin/tc-admin-2026 (MFA: TOTP из БД users)')"
+	python3 -c "print('Откройте ais_providets.html (v102): демо-режим — выбрать роль и войти; серверный режим — включите тумблер, укажите http://localhost:8000 (make dev), логин admin/tc-admin-2026, MFA: TOTP-код из секрета в БД users')"
 
 clean:
 	rm -f backend/technocontour.db backend/*.db-journal

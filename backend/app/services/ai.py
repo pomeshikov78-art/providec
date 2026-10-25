@@ -214,14 +214,22 @@ def recommendations(db: Session) -> List[dict]:
 
 # ---------------------------------------------------------------- прогон цикла (ИВП-7)
 def run_cycle(db: Session, events: Optional[list] = None, author: str = "scheduler") -> dict:
-    """Прогнозный цикл: расчёт → персистентные рекомендации → событие в шину."""
+    """Прогнозный цикл: расчёт → персистентные рекомендации → событие в шину.
+
+    Ответ возвращает СОХРАНЁННЫЕ рекомендации (rec_dict: rid/run_id/status/…), а не
+    сырые результаты расчёта: клиент (мост Этапа 9) рендерит кнопки принятия по rid,
+    поэтому формы POST /ai/run и GET /ai/recommendations обязаны совпадать.
+    """
     run_id = _run_id()
     tg = tech_gap_forecast(db)
     risks = failure_risk(db)
     recs = recommendations(db)
+    persisted = []
     for r in recs:
-        db.add(AiRecommendation(run_id=run_id, text=r["t"], module=r["m"],
-                                confidence=r["conf"], status="published"))
+        obj = AiRecommendation(run_id=run_id, text=r["t"], module=r["m"],
+                               confidence=r["conf"], status="published")
+        db.add(obj)
+        persisted.append(obj)
     db.flush()
     if events is not None:
         events.append(("ai.recommendations_ready", "MOD-AI",
@@ -229,7 +237,8 @@ def run_cycle(db: Session, events: Optional[list] = None, author: str = "schedul
                        f"{len(risks)} рисков этапов, {len(recs)} рекомендаций (conf ≥ {PUBLISH_THRESHOLD})",
                        "info"))
     return {"run_id": run_id, "model": MODEL_VERSION, "author": author,
-            "tech_gaps": tg, "fail_risk": risks, "recommendations": recs,
+            "tech_gaps": tg, "fail_risk": risks,
+            "recommendations": [rec_dict(p) for p in persisted],
             "as_of": date.today().isoformat()}
 
 
