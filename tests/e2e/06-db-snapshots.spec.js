@@ -21,7 +21,7 @@ test('6.1 экспорт снимка: JSON с program=v102.0.0, schemaVersion �
   expect(download.suggestedFilename()).toMatch(/^technocontour_demo_snapshot_.*\.json$/);
   const p = await download.path();
   const snap = JSON.parse(fs.readFileSync(p, 'utf8'));
-  expect(snap.program).toBe('v102.0.0');
+  expect(snap.program).toBe('v103.0.0');
   expect(snap.schemaVersion).toBe(1);
   expect(snap.integrity.algorithm).toBe('CRC32');
   expect(snap.data.ORGS.length).toBe(100);
@@ -94,7 +94,7 @@ test('6.5 самодиагностика снимков: диалог role=dialo
   await expect(dlg).toHaveAttribute('aria-modal', 'true');
   const rep = await page.evaluate(() => DB_LAST_SELF_TEST_REPORT);
   expect(rep.summary.failed).toBe(0);
-  expect(rep.program).toBe('v102.0.0');
+  expect(rep.program).toBe('v103.0.0');
   expect(rep.summary.total).toBeGreaterThanOrEqual(20);
   await page.click('#dbSelfTestDone');
   await expect(dlg).toHaveCount(0);

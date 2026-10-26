@@ -590,7 +590,7 @@ button,.btn,.btn-primary,.icon-btn,.mtbtn,.role-btn{touch-action:manipulation}
 }
 
 </style>
-<meta name="providets-release-version" content="v102.0.0">
+<meta name="providets-release-version" content="v103.0.0">
 </head>
 <body>
 
@@ -609,7 +609,7 @@ button,.btn,.btn-primary,.icon-btn,.mtbtn,.role-btn{touch-action:manipulation}
       </svg>
       <div>
         <h1>АИС <b>«ТЕХНОКОНТУР»</b></h1>
-        <div id="loginVerLine" style="font-size:11.5px;color:var(--tx3);letter-spacing:2.6px;text-transform:uppercase;margin-top:3px">Шифр темы «Провидец» · ТЗ 4.0 · программа v102.0.0</div>
+        <div id="loginVerLine" style="font-size:11.5px;color:var(--tx3);letter-spacing:2.6px;text-transform:uppercase;margin-top:3px">Шифр темы «Провидец» · ТЗ 4.0 · программа v103.0.0</div>
       </div>
     </div>
     <div class="login-sub">Автоматизированная информационная система поддержки принятия решений для работы с предприятиями отрасли
@@ -662,7 +662,7 @@ button,.btn,.btn-primary,.icon-btn,.mtbtn,.role-btn{touch-action:manipulation}
       <div id="bootLines" style="margin-top:9px;max-height:130px;overflow:hidden"></div>
     </div>
 
-    <div class="login-note">Демонстрационный прототип АИС «Техноконтур» (шифр «Провидец»), программа версии <span data-tc-ver="num">102.0.0</span> по ТЗ версии <span data-tc-ver="tz">4.0</span>. Архитектурный принцип «Ядро + Модули» представлен на уровне клиентского прототипа; данные в автономном демо-режиме модельные.
+    <div class="login-note">Демонстрационный прототип АИС «Техноконтур» (шифр «Провидец»), программа версии <span data-tc-ver="num">103.0.0</span> по ТЗ версии <span data-tc-ver="tz">4.0</span>. Архитектурный принцип «Ядро + Модули» представлен на уровне клиентского прототипа; данные в автономном демо-режиме модельные.
       Картографическая основа — условная схема (в промышленной версии: локальный тайл-сервер или согласованный картографический сервис).</div>
     <div class="prototype-warning" role="note"><b>Важно:</b> выбор роли в локальном демо не является аутентификацией и не обеспечивает защиту данных. Реальный контроль доступа, аудит и хранение должны обеспечиваться сервером и инфраструктурой безопасности. Изменения в локальном демо хранятся только в памяти страницы и теряются при перезагрузке/закрытии; экспортируйте нужные данные перед выходом. В варианте Б внешние сетевые адреса блокируются клиентской проверкой, но гарантию физической изоляции обеспечивает только конфигурация сети/ОС; внешняя загрузка Leaflet из CDN запрещена; для карты используются локальные файлы ./vendor/leaflet/leaflet.js и leaflet.css (включены в поставку, начиная с v101) и локальный тайл-сервер.</div>
   </div>
@@ -778,7 +778,7 @@ button,.btn,.btn-primary,.icon-btn,.mtbtn,.role-btn{touch-action:manipulation}
    Все отчёты, экспорты, самопроверки и видимые версии читают значение
    только отсюда. Ручная правка литералов версии в коде запрещена.
    ================================================================== */
-const APP_VERSION=Object.freeze({major:102,minor:0,patch:0,str:"v102.0.0",num:"102.0.0",tz:"4.0",build:"v102",released:"26.10.2026"});
+const APP_VERSION=Object.freeze({major:103,minor:0,patch:0,str:"v103.0.0",num:"103.0.0",tz:"4.0",build:"v103",released:"26.10.2026"});
 function ver(){return APP_VERSION.str;}
 function verNum(){return APP_VERSION.num;}
 /* P3.7 (Волна 0.7): SRI (SHA-256, base64) для Leaflet 1.9.4 в CDN-режиме.
@@ -1918,7 +1918,7 @@ function buildHelpIndex(){
   idx.push({c:"Внедрение (ТЗ п.11)",t:"Статус реализации прототипа",x:"Оценка готовности по компонентам ТЗ: прототип vs промышленная реализация, рекомендуемый стек",go:"showPage('roadmap')"});
   idx.push({c:"Паспорт (Приложение 2)",t:"92 поля 12 разделов паспорта",x:"Спецификация полей: тип, обязательность, источник; пороги полноты по разделам (2.14); редактирование и журнал версий",go:"showPage('pass')"});
   /* P3.8 (v101): раздел «Что нового» в справочном центре */
-  idx.push({c:"Что нового · "+ver(),t:ver()+" — волна 0 плана улучшений: версия, доступность, deep-linking, офлайн-карта",x:"v102.0.0: исправлен критический дефект Д-10 — серверный вход через UI (JWT+MFA) снова работает; платформа подтверждена живыми испытаниями (протокол 17/17 + E2E-стенд srv против FastAPI); фактический OpenAPI (64 пути) в backend/. v101: единая константа APP_VERSION; тосты и навигация доступны скринридеру и клавиатуре; диалоги tcDialog вместо window.confirm/prompt (MFA, восстановление снимка); глубокие ссылки #страница и кнопка «назад»; Leaflet 1.9.4 в поставке (vendor/) c SRI для CDN; CHANGELOG.md",go:"showPage('about')"});
+  idx.push({c:"Что нового · "+ver(),t:ver()+" — волна 0 плана улучшений: версия, доступность, deep-linking, офлайн-карта",x:"v103.0.0 — серверная персистентность: правки паспорта сохраняются в СУБД (PUT /orgs/{id}/passport, версия+CRC32+журнал), контроль качества и пересборка двойника — серверные, DOCX/XLSX — реальные файлы бэкенда (python-docx/openpyxl) через закалённый srvDownload. v102: исправлен критический дефект Д-10 — серверный вход через UI (JWT+MFA) снова работает; платформа подтверждена живыми испытаниями (протокол 17/17 + E2E-стенд srv против FastAPI); фактический OpenAPI (64 пути) в backend/. v101: единая константа APP_VERSION; тосты и навигация доступны скринридеру и клавиатуре; диалоги tcDialog вместо window.confirm/prompt (MFA, восстановление снимка); глубокие ссылки #страница и кнопка «назад»; Leaflet 1.9.4 в поставке (vendor/) c SRI для CDN; CHANGELOG.md",go:"showPage('about')"});
   return idx;
 }
 function openHelp(){
@@ -4453,6 +4453,10 @@ function runClientRegressionSmokeTests(){
  check('DL-01','Deep-linking: парсер хэша валидирует страницы по реестру RENDERERS',()=>typeof parseHashPage==='function'&&typeof deepLinkSync==='function'&&parseHashPage('#about')==='about'&&parseHashPage('#geo?layer=heat')==='geo'&&parseHashPage('#not-a-page')===null&&parseHashPage('')===null);
  check('GEO-SRI-01','CDN-режим Leaflet использует SRI; офлайн-режим — локальные файлы поставки',()=>typeof TC_LEAFLET_SRI==='object'&&/^sha256-[A-Za-z0-9+/]{43}=$/.test(TC_LEAFLET_SRI.js)&&/^sha256-[A-Za-z0-9+/]{43}=$/.test(TC_LEAFLET_SRI.css)&&TC_LEAFLET_SRI.version==='1.9.4'&&leafletLoad.toString().includes('integrity'));
  check('SRV-LOGIN-01','Д-10: серверный вход передаёт снимок пароля в srvTryLogin до очистки полей',()=>doLogin.toString().includes('passSnapshot')&&srvTryLogin.toString().includes('presetPassword')&&srvTryLogin.length===1);
+ check('SRV-DL-01','Этап 12: srvDownload — закалённый Promise (эпоха сессии, лимит, отмена при logout)',()=>typeof srvDownload==='function'&&srvDownload.toString().includes('LOGIN_ATTEMPT_SUPERSEDED')&&srvDownload.toString().includes('SRV_DOWNLOAD_MAX_BYTES')&&srvDownload.toString().includes('SRV_ACTIVE_REQUESTS'));
+ check('SRV-PASS-01','Этап 12: сохранение паспорта в серверном режиме персистит в СУБД (fail-closed)',()=>savePassVersion.toString().includes('SRV.connected')&&RENDERERS.pass.toString().includes('__s12Synced'));
+ check('SRV-REPORT-01','Этап 12: DOCX/XLSX в серверном режиме — реальные файлы сервера (srvDownload)',()=>exportReportDocx.toString().includes('srvDownload')&&exportPassportDocx.toString().includes('srvDownload'));
+ check('SRV-TWIN-01','Этап 12: пересборка цифрового двойника и контроль качества — на сервере',()=>recalcProfile.toString().includes('/api/v1/twins/')&&passportQuality.toString().includes('/passport/quality'));
  const report={system:'АИС «Техноконтур» / «Провидец»',program:ver(),kind:'client-regression-smoke-test',status:'local_static_runtime_smoke_only',generatedAt:new Date().toISOString(),tests,summary:{total:tests.length,passed:tests.filter(t=>t.result==='PASS').length,failed:tests.filter(t=>t.result==='FAIL').length},limitations:['Проверяются только наличие базовых функций в текущем JS-контексте.','Не проверяются DOM-переходы, серверные ответы, права API, хранение данных, реальный сетевой трафик или Air-Gap.','PASS не является приёмочным подтверждением безопасности.']};window.__tcClientRegressionReport=report;const el=document.getElementById('regressionResults');if(el)el.innerHTML='<b>'+report.summary.passed+'/'+report.summary.total+' проверок PASS</b> · '+report.summary.failed+' FAIL'+tests.map(t=>'<div style="padding:4px 0;border-top:1px solid var(--line)"><b>'+esc(t.result)+'</b> · '+esc(t.id)+' — '+esc(t.title)+'<div class="hint">'+esc(t.detail)+'</div></div>').join('')+'<div class="hint" style="margin-top:8px">Это smoke-test наличия функций, не полноценный браузерный регрессионный набор.</div>';toast('Локальные smoke-проверки завершены. Результат не заменяет приёмочные испытания.','ok','P0 · регрессия');return report;
 }
 function exportClientRegressionSmokeTests(){const r=window.__tcClientRegressionReport||runClientRegressionSmokeTests();return downloadFile('providets_client_regression_smoke'+APP_VERSION.build+'.json',JSON.stringify(r,null,2),'application/json;charset=utf-8');}
@@ -4580,6 +4584,7 @@ RENDERERS.about=function(){
   '<div class="sec-title">История версий программы</div><div class="iam-note"><b>P0 · Контроль выпуска:</b> промышленная поставка требует подписанного манифеста, SHA-256 для каждого файла, перечня зависимостей, протокола испытаний и плана отката. Подпись не проверяется этим HTML; текущий файл остаётся прототипом до независимой проверки артефактов.</div>'+
   '<div class="tbl-wrap" style="margin-bottom:14px"><table class="tbl"><thead><tr><th>Версия</th><th>Дата</th><th>Изменения</th></tr></thead><tbody>'+
    [
+    ["v103.0.0","26.10.2026","Рабочая платформа — Этап 12 (серверная персистентность базовых операций): (1) MOD-PASS в серверном режиме: при открытии страницы паспорта значения полей загружаются из СУБД (GET /api/v1/orgs/{id}/passport → оверлей state.passOv — UI показывает серверные данные), «Сохранить версию» персистит правки на сервере (PUT /api/v1/orgs/{id}/passport; маппинг (раздел,поле)→field_id строится по карте полей с сервера; отправляются только реально изменённые поля — перезапись серверных значений пустыми исключена), сервер создаёт новую версию паспорта с CRC32 и журналом изменений, событие passport.updated запускает ИВП-2 (профиль зрелости + цифровой двойник); при отказе сервера — fail-closed: локальные данные не изменяются; (2) «Контроль качества» паспорта — серверный (POST .../passport/quality: ИНН/ОГРН по методикам ФНС, полнота по порогам Прил. 2.14); (3) MOD-PROF: «Пересчитать профиль» в серверном режиме пересобирает цифровой двойник на сервере (POST /api/v1/twins/{id}/rebuild, CRC32 + WORM-аудит сервера); (4) отчёты: DOCX/XLSX в серверном режиме — РЕАЛЬНЫЕ файлы, сгенерированные бэкендом из данных СУБД (python-docx/openpyxl: паспорт DOCX, реестр/EVM XLSX); доведена до закалённого Promise-API функция srvDownload (Этап 9 определил её, но не использовал): валидация пути buildApiUrl, Authorization bearer, credentials omit, redirect error, эпоха сессии, таймаут 60 с, лимит 64 МБ, проверка непустоты, имя файла из Content-Disposition, регистрация в SRV_ACTIVE_REQUESTS (отмена при logout); при недоступности сервера — прозрачный откат в клиентскую генерацию с честным предупреждением; (5) демо-режим не изменён (обёртки прозрачны при отключённом сервере); добавлены smoke-проверки SRV-PASS-01, SRV-REPORT-01, SRV-TWIN-01, SRV-DL-01; E2E-стенд srv расширен сценариями персистентности (правка паспорта → версия в СУБД → данные переживают повторный вход; реальный DOCX — PK-магия ZIP; XLSX реестра); живой протокол интеграции расширен LP-18 (паспорт: карта полей → PUT → версия → quality) и LP-19 (бинарные отчёты DOCX/XLSX/PDF из СУБД)."],
     ["v102.0.0","26.10.2026","Рабочая платформа (Этап 10c/11): (1) исправлен КРИТИЧЕСКИЙ дефект Д-10 серверного режима — обёртка doLogin вызывала prepareServerLoginAttempt(), очищающий поле пароля ДО его чтения функцией srvTryLogin, из-за чего серверный вход через UI (JWT + MFA/TOTP) был невозможен («Укажите пароль»); пароль теперь передаётся снимком-аргументом srvTryLogin(presetPassword); дефект существовал с Этапа 9 (v100), не обнаруживался jsdom-тестами и выявлен браузерными E2E-испытаниями Playwright на живом бэкенде FastAPI (стенд srv, 10 сценариев); (2) платформа подтверждена живым протоколом интеграции (src10/live_protocol.py, 17/17 PASS против реального API): IAM (пароль → mfa_required → TOTP из СУБД → JWT L7), bootstrap из СУБД (100 организаций, 12 проектов, 15 модулей, 29 интеграций), событийная цепочка ИВП-1→ИВП-2 (назначение эксперта → заключение → passport.verified → стимул MOD-STIM), неизменяемый поток статусов MOD-DOC, прогнозный цикл MOD-AI с rid и идемпотентностью принятия (повтор → 409), graceful degradation (модуль off → 503), WORM-аудит с хеш-цепочкой sha256, отзыв токена при logout (jti blacklist); (3) фактический OpenAPI-контракт (64 пути) экспортирован из живого приложения в backend/openapi_providets.json/.yaml (артефакт ART-02) — заменяет черновик; (4) бэкенд: POST /api/v1/ai/run возвращает сохранённые рекомендации с rid — форма ответа совпадает с GET /api/v1/ai/recommendations (контракт клиентского моста Этапа 9); (5) добавлена smoke-проверка SRV-LOGIN-01 (контроль дефекта Д-10); E2E-каркас расширен стендом srv (клиент против живого FastAPI: вход L7 через MFA-диалог, шина, KPI/AI/EXPERT-цепочки, негатив-кейсы пароля и MFA, деградация полного стека, отзыв токена, серверный RBAC 403). Демо-режим и киоск не изменены."],
     ["v101.0.0","26.10.2026","Волна 0 плана улучшений (P3.1–P3.8, план plan_uluchsheniy_v100.md): (1) единый источник версии — константа APP_VERSION + ver()/verNum(): устранены хардкоды литералов текущей версии в отчётах, самодиагностике, UI и именах JSON-экспортов (16 имён теперь получают суффикс из APP_VERSION.build; исправлен рассинхрон имени first_admin_runbook); (2) ровно один meta-тег providets-release-version (устаревшие v97/v98/v99 удалены), синхронизируется из константы; (3) доступность: тосты — role=status + aria-live=polite (ошибочные — alert/assertive); боковая навигация — nav с aria-label, пункты role=button, tabindex=0, aria-current=page, data-page, полное управление с клавиатуры (Tab, Enter/Space) через один делегированный обработчик; (4) вместо блокирующих window.confirm/window.prompt — немодальный доступный диалог tcDialog (role=dialog, aria-modal, фокус-ловушка, Esc — отмена, Enter — подтверждение, возврат фокуса): подтверждение восстановления снимка и ввод MFA-кода; (5) deep-linking: синхронизация страницы с location.hash, обработка hashchange/popstate, кнопка «назад» браузера работает, после входа восстанавливается страница из хэша; (6) офлайн-карта: Leaflet 1.9.4 включён в поставку (vendor/leaflet/ + LICENSE + images/), CDN-режим загружается с SRI sha256 и crossorigin=anonymous; (7) CHANGELOG.md в корне репозитория и раздел «Что нового» в справочном центре (F1); (8) новые встроенные smoke-проверки REL-VER-02, A11Y-01, NAV-01, DL-01, GEO-SRI-01. Совместимость: демо-режим и киоск не изменены; снимки данных v100 восстанавливаются без ограничений (валидатор схемы не привязан к версии программы)."],
     ["v100.0.0","18.10.2026","Этап 9 — объединение двух веток разработки и устранение критического дефекта: (1) к закалённой клиентской ветке (v13–v82, работы P0.1–P0.59: XSS/URL-валидация, лимиты ответов API, эпохи сессии, атомарный bootstrap, снимки данных с CRC32 и самодиагностикой, Air-Gap-политика, SBOM-реестр, контрольные ворота выпуска) подключён серверный мост Этапа 8 — MOD-KPI (регламентный пересчёт из СУБД, телеметрия KPI-2/4/5/8, kpi.threshold_breached → авто-санкция MOD-STIM по Прил. 1.6), MOD-EXPERT (детерминированное назначение экспертов, заключения с серверной цепочкой ИВП-1→ИВП-2: арбитраж → паспорт верифицирован → стимул → цифровой двойник, SLA ≤ 8 ч), MOD-DOC (неизменяемый поток Проект → На подписании → Подписан (ЭЦП) → Утверждён, серверная карточка и аудит), MOD-AI (детерминированная модель v4.0-srv: tech-gap к порогу суверенитета 75 %, риск срыва контрольных точек, 6 правил рекомендаций, публикация при confidence ≥ 0.7), MOD-STIM (каталог мер, автоприменение по событиям шины); мост активен только в серверном режиме, демо-режим не изменён, все запросы проходят через закалённый srvApi (валидация адреса, лимит размера ответа, эпоха сессии, таймаут 30 с); (2) исправлен критический дефект страницы «О системе»: malformed-структура массива истории версий приводила к тому, что comma-оператор отбрасывал всё содержимое страницы до истории, а записи v49–v82 не отображались — история реконструирована единым массивом с сортировкой от новых к старым; (2b) исправлены пять дефектов встроенной самодиагностики закалённой ветки: очистка диагностического текста не срабатывала для JSON-ключей в кавычках (api_key, session_id — секрет попадал в отчёты); регекс негативного теста самоссылки организации не совпадал с фактическим сообщением валидатора; проверка сводного P0-пакета вызывала асинхронный сборщик синхронно (выделен синхронный buildP0EvidenceBundleCore); цифровой двойник для негативных тестов снимков отсутствовал до первого открытия MOD-PASS/MOD-PROF — добавлена стартовая сборка двойника E03 (организации, не затрагиваемой негативными тестами); негативные тесты ID организаций не учитывали двойники — копия снимка в тесте теперь исключает двойник переименованной организации (изоляция проверяемого валидатора); (3) унифицированы версионные метаданные (экран входа, примечание прототипа, «О системе», футер, тур оператора, план Фаз 0–6, SBOM, диагностические отчёты и имена JSON-экспортов _v100) — устранён разнобой v82/74/49/37/12; (4) проверки: бэкенд — 80 серверных тестов (pytest, Этапы 1–8), клиент — встроенные smoke-тесты 20 + объединённый набор DOM-тестов Этапа 9, live-сценарий 12 проверок (uvicorn + HTTP-цепочки Этапа 8)"],
@@ -5736,24 +5741,46 @@ sendVerify=function(id){
 };
 
 /* ---------------- серверные отчёты (реальные DOCX/XLSX/PDF) ---------------- */
-function srvDownload(path,fallbackName){
-  if(!SRV.connected){toast("Серверные отчеты доступны в серверном режиме","warn","MOD-REPORT");return;}
-  let target;try{
-    target=buildApiUrl(path,"Скачивание серверного отчёта");
-  }catch(e){toast(e.message,"warn","API Gateway");return;}
-  const controller=typeof AbortController!=="undefined"?new AbortController():null;
-  const timeout=controller?setTimeout(()=>controller.abort(),60000):null;
-  const opts={credentials:"omit",redirect:"error",headers:{Authorization:"Bearer "+SRV.token}};
-  if(controller)opts.signal=controller.signal;
-  fetch(target,opts)
-    .then(r=>{if(!r.ok)throw new Error("HTTP "+r.status);return r.blob();})
-    .then(b=>{
-      const a=document.createElement("a");a.href=URL.createObjectURL(b);
-      a.download=fallbackName||path.split("/").pop();document.body.appendChild(a);a.click();
-      setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},500);
-      toast("Отчет с сервера: "+a.download+" ("+(b.size/1024).toFixed(0)+" КБ)","ok","MOD-REPORT");
-    }).catch(e=>toast("Ошибка загрузки отчета: "+(e&&e.name==="AbortError"?"превышено время ожидания (60 с)":e.message),"warn","MOD-REPORT"))
-    .finally(()=>{if(timeout)clearTimeout(timeout);});
+const SRV_DOWNLOAD_MAX_BYTES=64*1024*1024; /* Этап 12 (v103): лимит бинарной загрузки */
+/* Этап 12 (v103): закалённое Promise-API бинарной загрузки (барьеры как в srvApi):
+   валидация пути/origin, Authorization, credentials:omit, redirect:error, эпоха сессии,
+   таймаут 60 с, лимит 64 МБ, непустота, имя из Content-Disposition, abort при logout. */
+function srvDownload(path,fallbackName,label){
+  return new Promise(function(resolve,reject){
+    if(!SRV.connected||!SRV.token){
+      toast("Серверные отчеты доступны в серверном режиме","warn","MOD-REPORT");
+      reject(new Error("Серверный режим не активен"));return;
+    }
+    let target;
+    try{target=buildApiUrl(path,label||"Скачивание серверного отчёта");}
+    catch(e){toast(e.message,"warn","API Gateway");reject(e);return;}
+    const epoch=Number(SRV.sessionEpoch)||0;
+    const controller=typeof AbortController!=="undefined"?new AbortController():null;
+    if(controller&&typeof SRV_ACTIVE_REQUESTS!=="undefined"&&SRV_ACTIVE_REQUESTS&&SRV_ACTIVE_REQUESTS.add)SRV_ACTIVE_REQUESTS.add(controller);
+    const timeout=controller?setTimeout(()=>controller.abort(),60000):null;
+    const opts={credentials:"omit",redirect:"error",headers:{Authorization:"Bearer "+SRV.token}};
+    if(controller)opts.signal=controller.signal;
+    const cleanup=()=>{if(timeout)clearTimeout(timeout);
+      if(controller&&typeof SRV_ACTIVE_REQUESTS!=="undefined"&&SRV_ACTIVE_REQUESTS&&SRV_ACTIVE_REQUESTS["delete"])SRV_ACTIVE_REQUESTS["delete"](controller);};
+    fetch(target,opts)
+      .then(r=>{
+        if((Number(SRV.sessionEpoch)||0)!==epoch){const e0=new Error("Сеанс обновлён; загрузка отменена.");e0.code="LOGIN_ATTEMPT_SUPERSEDED";throw e0;}
+        if(!r.ok)throw new Error("HTTP "+r.status);
+        const cd=r.headers.get("Content-Disposition")||"";
+        let name=fallbackName||path.split("/").pop();
+        const m=/filename\*=UTF-8''([^;]+)/i.exec(cd);
+        if(m){try{name=decodeURIComponent(m[1]);}catch(e){}}
+        return r.blob().then(b=>{
+          if(b.size>SRV_DOWNLOAD_MAX_BYTES)throw new Error("Документ превышает лимит 64 МБ");
+          if(b.size<=0)throw new Error("Сервер вернул пустой файл");
+          const a=document.createElement("a");a.href=URL.createObjectURL(b);
+          a.download=name;document.body.appendChild(a);a.click();
+          setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},500);
+          return {name:name,size:b.size,type:b.type||""};
+        });
+      })
+      .then(res=>{cleanup();resolve(res);},err=>{cleanup();reject(err);});
+  });
 }
 
 /* ================= КАРТООСНОВА LEAFLET + OSM (MOD-GEO) ================= */
@@ -6532,6 +6559,170 @@ logout=function(){
  },true);
  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",syncVersionMeta);
  else syncVersionMeta();
+})();
+</script>
+
+<script>
+/* ==================================================================
+   ЭТАП 12 / v103.0.0 — СЕРВЕРНАЯ ПЕРСИСТЕНТНОСТЬ БАЗОВЫХ ОПЕРАЦИЙ.
+   MOD-PASS:  значения полей из СУБД (оверлей state.passOv), сохранение версии
+              через PUT /orgs/{id}/passport (карта field_id, diff относительно
+              отрисованных значений, fail-closed), контроль качества — серверный.
+   MOD-PROF:  пересборка цифрового двойника на сервере (POST /twins/{id}/rebuild).
+   Отчёты:    DOCX/XLSX — реальные файлы бэкенда через закалённый srvDownload;
+              откат в клиентскую генерацию при недоступности сервера.
+   Демо-режим не изменён: обёртки прозрачны при !SRV.connected.
+   ================================================================== */
+(function(){
+ "use strict";
+ if(typeof SRV==="undefined"||typeof srvApi!=="function")return;
+
+ /* ---------------- MOD-PASS: серверные значения полей → оверлей -------------- */
+ var _s12PassSyncInFlight=false;
+ var _s12OrigRenderPass=RENDERERS.pass;
+ RENDERERS.pass=function(){
+   var out=_s12OrigRenderPass.apply(this,arguments);
+   try{
+     var oid=state.selEnt;
+     if(SRV.connected&&oid&&!_s12PassSyncInFlight){
+       var ov0=state.passOv[oid]||(state.passOv[oid]={});
+       if(!ov0.__s12Synced){
+         _s12PassSyncInFlight=true;
+         srvApi("/api/v1/orgs/"+encodeURIComponent(oid)+"/passport").then(function(pas){
+           _s12PassSyncInFlight=false;
+           var ov=state.passOv[oid]||(state.passOv[oid]={});
+           (pas.sections||[]).forEach(function(s){(s.fields||[]).forEach(function(f){
+             if(f.value!=null&&f.value!=="")ov[s.n+"|"+f.name]=String(f.value);
+           });});
+           ov.__s12Synced=true;
+           if(state.page==="pass"&&state.selEnt===oid)showPage("pass",true);
+         }).catch(function(){_s12PassSyncInFlight=false;});
+       }
+     }
+   }catch(e){}
+   return out;
+ };
+
+ /* ---------------- MOD-PASS: сохранение версии в СУБД (fail-closed) ---------- */
+ var _s12OrigSavePassVersion=savePassVersion;
+ async function srvSavePassVersion(id){
+   if(!can("org.write",id)){deny("Сохранение версии паспорта");return;}
+   var inputs=document.querySelectorAll(".pf-in");
+   if(!inputs.length){toast("На странице нет редактируемых полей паспорта","warn","MOD-PASS");return;}
+   toast("Сохранение паспорта на сервере: карта полей из СУБД…","","MOD-PASS");
+   try{
+     var pas=await srvApi("/api/v1/orgs/"+encodeURIComponent(id)+"/passport");
+     var fmap={};
+     (pas.sections||[]).forEach(function(s){(s.fields||[]).forEach(function(f){fmap[s.n+"|"+f.name]=f.id;});});
+     var o=orgById(id);
+     var ov=state.passOv[id]||(state.passOv[id]={});
+     var updates={};var edited={};var nEd=0;
+     inputs.forEach(function(inp){
+       var s=+inp.dataset.s,f=inp.dataset.f,v=inp.value.trim();
+       var fid=fmap[s+"|"+f];
+       if(!fid)return;
+       var j=(PASS_FIELDS[s]||[]).findIndex(function(x){return x[0]===f;});
+       var hadOv=ov[s+"|"+f]!=null&&ov[s+"|"+f]!=="";
+       var old=(passFilled(o,s-1,j>=0?j:0)||hadOv)?String(fieldValue(o,s,j>=0?j:0,f)):"";
+       if(v!==old){updates[fid]=v;edited[s+"|"+f]=v;nEd++;}
+     });
+     if(!nEd){toast("Изменений нет: версия паспорта на сервере не создавалась","","MOD-PASS");return;}
+     var res=await srvApi("/api/v1/orgs/"+encodeURIComponent(id)+"/passport",{method:"PUT",body:JSON.stringify({updates:updates})});
+     Object.keys(edited).forEach(function(k){ov[k]=edited[k];});
+     ov.__s12Synced=true;
+     addAudit("Сохранение версии паспорта (сервер)",id+" · ред. "+res.ver_n+" · изменений "+res.changes,"Успех");
+     publish("passport.updated","MOD-PASS","Паспорт "+esc(id)+": редакция "+res.ver_n+" сохранена в СУБД (изменений: "+res.changes+")");
+     toast("Паспорт сохранён на сервере: редакция "+res.ver_n+", изменений: "+res.changes+". ИВП-2: профиль зрелости и цифровой двойник пересчитываются","ok","MOD-PASS");
+     if(state.page==="pass")showPage("pass",true);
+   }catch(e){
+     if(e&&e.code==="LOGIN_ATTEMPT_SUPERSEDED")return;
+     toast("Сервер отклонил сохранение паспорта: "+((e&&e.message)||e)+". Локальные данные НЕ изменены (fail-closed).","err","MOD-PASS");
+   }
+ }
+ savePassVersion=function(id){
+   if(SRV.connected)return srvSavePassVersion(id);
+   return _s12OrigSavePassVersion(id);
+ };
+
+ /* ---------------- MOD-PASS: контроль качества — серверный ------------------- */
+ var _s12OrigQuality=passportQuality;
+ passportQuality=function(id){
+   if(!SRV.connected)return _s12OrigQuality(id);
+   toast("Контроль качества паспорта на сервере (ИНН/ОГРН по методикам ФНС, полнота)…","","MOD-PASS");
+   srvApi("/api/v1/orgs/"+encodeURIComponent(id)+"/passport/quality",{method:"POST"}).then(function(res){
+     var issues=(res&&res.issues)||[];
+     addAudit("Контроль качества данных паспорта (сервер)",id+(res&&res.ok?" · без замечаний":" · замечаний: "+issues.length),"Успех");
+     toast((res&&res.ok)?("Качество паспорта "+id+" подтверждено сервером: замечаний нет"):
+       ("Контроль качества "+id+": замечаний "+issues.length+" — "+String(issues[0]||"").slice(0,140)),(res&&res.ok)?"ok":"warn","MOD-PASS");
+   }).catch(function(e){
+     if(e&&e.code==="LOGIN_ATTEMPT_SUPERSEDED")return;
+     toast("Серверный контроль качества недоступен ("+((e&&e.message)||e)+") — выполняю клиентскую проверку","warn","MOD-PASS");
+     _s12OrigQuality(id);
+   });
+ };
+
+ /* ---------------- MOD-PROF: пересборка двойника на сервере ------------------ */
+ var _s12OrigRecalc=recalcProfile;
+ recalcProfile=function(id){
+   if(!SRV.connected)return _s12OrigRecalc(id);
+   if(!can("org.write",id)){deny("Пересчет профиля ("+id+")");return;}
+   toast("Пересборка цифрового двойника на сервере (ИВП-2)…","","MOD-PROF");
+   srvApi("/api/v1/twins/"+encodeURIComponent(id)+"/rebuild",{method:"POST"}).then(function(res){
+     _s12OrigRecalc(id);
+     toast("Серверный цифровой двойник "+id+" пересобран: CRC32 "+String((res&&res.crc32)||"—")+" (WORM-аудит сервера)","ok","MOD-PROF");
+   }).catch(function(e){
+     if(e&&e.code==="LOGIN_ATTEMPT_SUPERSEDED")return;
+     toast("Сервер отклонил пересборку двойника: "+((e&&e.message)||e)+". Локальный пересчёт не выполнялся (fail-closed).","err","MOD-PROF");
+   });
+ };
+
+ /* ---------------- Реальные файлы DOCX/XLSX с сервера ------------------------ */
+ var _s12OrigPassDocx=exportPassportDocx;
+ exportPassportDocx=function(id){
+   if(!SRV.connected)return _s12OrigPassDocx(id);
+   if(!can("org.write",id)){deny("Экспорт паспорта в DOCX ("+id+")");return;}
+   toast("Сервер формирует реальный DOCX паспорта (python-docx, данные СУБД)…","","MOD-PASS");
+   srvDownload("/api/v1/reports/passport/"+encodeURIComponent(id)+".docx","passport_"+id+".docx","Экспорт паспорта DOCX").then(function(r){
+     addAudit("Экспорт паспорта (сервер)",id+" · "+r.name+" · "+r.size+" байт","Успех");
+     toast("Реальный DOCX паспорта "+id+" сформирован сервером: "+Math.round(r.size/1024)+" КБ (норматив ≤ 5 с)","ok","MOD-PASS");
+   }).catch(function(e){
+     if(e&&e.code==="LOGIN_ATTEMPT_SUPERSEDED")return;
+     toast("Серверный DOCX недоступен ("+((e&&e.message)||e)+") — клиентская генерация","warn","MOD-PASS");
+     _s12OrigPassDocx(id);
+   });
+ };
+ var _s12OrigReportDocx=exportReportDocx;
+ exportReportDocx=function(){
+   if(!SRV.connected)return _s12OrigReportDocx();
+   if(!can("report.run")){deny("Экспорт отчета в DOCX");return;}
+   var orgId=state.selEnt||"E01";
+   toast("Сервер формирует реальный DOCX (python-docx, данные СУБД)…","","MOD-REPORT");
+   srvDownload("/api/v1/reports/passport/"+encodeURIComponent(orgId)+".docx","passport_"+orgId+".docx","Экспорт отчета DOCX").then(function(r){
+     addAudit("Формирование отчета (сервер)",r.name+" · DOCX · "+r.size+" байт","Успех");
+     toast("Сервер сформировал реальный DOCX: "+r.name+" ("+Math.round(r.size/1024)+" КБ) — паспорт "+orgId+" по данным СУБД","ok","MOD-REPORT");
+   }).catch(function(e){
+     if(e&&e.code==="LOGIN_ATTEMPT_SUPERSEDED")return;
+     toast("Серверный DOCX недоступен ("+((e&&e.message)||e)+") — клиентская генерация","warn","MOD-REPORT");
+     _s12OrigReportDocx();
+   });
+ };
+ var _s12OrigReportXlsx=exportReportXlsx;
+ exportReportXlsx=function(){
+   if(!SRV.connected)return _s12OrigReportXlsx();
+   if(!can("report.run")){deny("Экспорт отчета в XLSX");return;}
+   var isEvm=String((state.report&&state.report.type)||"").indexOf("НИОКР")>=0;
+   var path=isEvm?"/api/v1/reports/evm.xlsx":"/api/v1/reports/registry.xlsx";
+   toast("Сервер формирует реальный XLSX (openpyxl, данные СУБД)…","","MOD-REPORT");
+   srvDownload(path,isEvm?"technocontour_evm.xlsx":"technocontour_registry.xlsx","Экспорт отчета XLSX").then(function(r){
+     addAudit("Формирование отчета (сервер)",r.name+" · XLSX · "+r.size+" байт","Успех");
+     toast("Сервер сформировал реальный XLSX: "+r.name+" ("+Math.round(r.size/1024)+" КБ)","ok","MOD-REPORT");
+   }).catch(function(e){
+     if(e&&e.code==="LOGIN_ATTEMPT_SUPERSEDED")return;
+     toast("Серверный XLSX недоступен ("+((e&&e.message)||e)+") — клиентская генерация","warn","MOD-REPORT");
+     _s12OrigReportXlsx();
+   });
+ };
+ window.__TC_STAGE12_BRIDGE=true;
 })();
 </script>
 </body>

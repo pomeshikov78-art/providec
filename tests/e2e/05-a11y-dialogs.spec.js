@@ -5,7 +5,7 @@ const fs = require('fs');
 const path = require('path');
 
 test('5.1 P3.3: контейнер тостов — role=status aria-live=polite', async ({ page }) => {
-  await page.goto('ais_providets_v102.html');
+  await page.goto('ais_providets_v103.html');
   const t = page.locator('#toasts');
   await expect(t).toHaveAttribute('role', 'status');
   await expect(t).toHaveAttribute('aria-live', 'polite');
@@ -25,7 +25,7 @@ test('5.2 P3.3: обычный тост без role=alert; ошибочный �
 });
 
 test('5.3 P3.4: в исходном артефакте нет window.confirm(/window.prompt(', async ({}) => {
-  const html = fs.readFileSync(path.resolve(__dirname, '../../ais_providets_v102.html'), 'utf8');
+  const html = fs.readFileSync(path.resolve(__dirname, '../../ais_providets_v103.html'), 'utf8');
   expect(html).not.toMatch(/window\.confirm\s*\(/);
   expect(html).not.toMatch(/window\.prompt\s*\(/);
 });
@@ -77,7 +77,7 @@ test('5.6 P3.4: tcPrompt — поле ввода, Enter возвращает з�
 
 test('5.7 P3.4: Enter в открытом диалоге на экране входа НЕ запускает doLogin повторно', async ({ page }) => {
   // диалог поверх экрана входа: глобальный Enter-логин обязан блокироваться capture-обработчиком
-  await page.goto('ais_providets_v102.html');
+  await page.goto('ais_providets_v103.html');
   await page.waitForSelector('#loginBtn');
   await page.evaluate(() => { window.__dlg = 'pending'; tcPrompt('Код', 'M', 'Код').then(v => { window.__dlg = v; }); });
   await page.waitForSelector('#tcDlgInp');

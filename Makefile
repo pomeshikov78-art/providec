@@ -1,5 +1,5 @@
 # АИС «Техноконтур» — команды разработки и эксплуатации
-.PHONY: install dev test lint up down logs build wave0 v102 verify test-dom test-e2e test-e2e-srv platform demo clean
+.PHONY: install dev test lint up down logs build wave0 v102 v103 verify test-dom test-e2e test-e2e-srv platform demo clean
 
 install:            ## установка зависимостей бэкенда
 	pip install -r backend/requirements.txt
@@ -15,18 +15,21 @@ lint:
 	ruff check backend/app --select E,F,W --ignore E501 || true
 	node --check src/app.js && node --check src/server.js
 
-wave0:              ## сборка v101 из v100 — Волна 0 плана улучшений (детерминированная, с валидацией)
+wave0:              ## сборка v101 из v100 (историческая; цепочка воспроизведения: make wave0 v102 v103) — Волна 0 плана улучшений (детерминированная, с валидацией)
 	python3 src10/patch_v101.py
 
 v102:               ## сборка v102 из v101 — «Рабочая платформа» (фикс Д-10), детерминированная
 	python3 src11/patch_v102.py
 
-verify:             ## статическая верификация актуального выпуска (Волна 0 + Д-10)
-	sh src11/verify_v102.sh
+v103:               ## сборка v103 из v102 — «Серверная персистентность» (Этап 12), детерминированная
+	python3 src12/patch_v103.py
 
-test-dom:           ## DOM-тесты клиента v102 (jsdom, 89 проверок; jsdom из node_modules)
+verify:             ## статическая верификация актуального выпуска (Волна 0 + Д-10 + Этап 12)
+	sh src12/verify_v103.sh
+
+test-dom:           ## DOM-тесты клиента v103 (jsdom, 93 проверки; jsdom из node_modules)
 	cd /tmp && NODE_PATH=$(CURDIR)/node_modules node -e \
-	  "process.argv[2]='$(CURDIR)/ais_providets_v102.html'; require('$(CURDIR)/src11/test_dom_v102.js')"
+	  "process.argv[2]='$(CURDIR)/ais_providets_v103.html'; require('$(CURDIR)/src12/test_dom_v103.js')"
 
 test-e2e:           ## E2E демо-стенды (Playwright: file:// + http://, 63×2 сценария; см. tests/README.md)
 	npx playwright test --config tests/playwright.config.js --project=file --project=http
@@ -56,7 +59,7 @@ metrics:            ## проверить Prometheus-метрики
 	python -c "import urllib.request;print(urllib.request.urlopen('http://localhost:8000/metrics').read().decode())"
 
 demo:               ## демо: открыть клиент (демо-режим либо серверный: http://localhost:8000)
-	python3 -c "print('Откройте ais_providets.html (v102): демо-режим — выбрать роль и войти; серверный режим — включите тумблер, укажите http://localhost:8000 (make dev), логин admin/tc-admin-2026, MFA: TOTP-код из секрета в БД users')"
+	python3 -c "print('Откройте ais_providets.html (v103): демо-режим — выбрать роль и войти; серверный режим — включите тумблер, укажите http://localhost:8000 (make dev), логин admin/tc-admin-2026, MFA: TOTP-код из секрета в БД users')"
 
 clean:
 	rm -f backend/technocontour.db backend/*.db-journal

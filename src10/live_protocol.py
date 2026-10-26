@@ -31,7 +31,7 @@ BASE = os.environ.get("TC_API", "http://127.0.0.1:8000").rstrip("/")
 DB = os.environ.get("TC_DB", str(ROOT / "backend" / "technocontour.db"))
 ADMIN_LOGIN = os.environ.get("TC_ADMIN_LOGIN", "admin")
 ADMIN_PASS = os.environ.get("TC_ADMIN_PASS", "tc-admin-2026")
-PROGRAM = "v102.0.0"
+PROGRAM = "v103.0.0"
 
 results = []
 ctx = {}
@@ -254,6 +254,54 @@ check("LP-15", "WORM-аудит: хеш-цепочка sha256 сверяется
                   need(t.status_code == 200 and len(t.json()) > 0, "журнал пуст"),
                   f"записей в хвосте={len(t.json())}")[3])
     (client.get("/api/v1/core/audit/verify", headers=H), client.get("/api/v1/core/audit", headers=H)))
+
+
+# ================================================================ ЭТАП 12: ПАСПОРТ/ОТЧЁТЫ
+def _passport_persistence():
+    pas = client.get("/api/v1/orgs/E01/passport", headers=H)
+    need(pas.status_code == 200, f"GET passport HTTP {pas.status_code}")
+    sections = pas.json()["sections"]
+    need(len(sections) == 12, f"разделов {len(sections)}, ожидалось 12")
+    nfields = sum(len(s["fields"]) for s in sections)
+    need(nfields == 92, f"полей {nfields}, ожидалось 92")
+    fid = sections[0]["fields"][0]["id"]
+    marker = "LP-протокол " + datetime.now(timezone.utc).strftime("%H%M%S")
+    put = client.put("/api/v1/orgs/E01/passport", headers=H, json={"updates": {str(fid): marker}})
+    need(put.status_code == 200, f"PUT passport HTTP {put.status_code}: {put.text[:120]}")
+    need(put.json().get("ver_n", 0) >= 1 and put.json().get("changes", 0) >= 1,
+         f"PUT не создал версию: {put.json()}")
+    pas2 = client.get("/api/v1/orgs/E01/passport", headers=H).json()
+    saved = [f for s in pas2["sections"] for f in s["fields"] if f["id"] == fid]
+    need(saved and saved[0]["value"] == marker, "значение не персистировано в СУБД")
+    vers = client.get("/api/v1/orgs/E01/passport/versions", headers=H).json()
+    need(len(vers) >= 1 and vers[0].get("crc32"), f"версии/CRC32 отсутствуют: {vers[:1]}")
+    q = client.post("/api/v1/orgs/E01/passport/quality", headers=H)
+    need(q.status_code == 200 and "ok" in q.json() and "issues" in q.json(), f"quality HTTP {q.status_code}")
+    tw = client.post("/api/v1/twins/E01/rebuild", headers=H)
+    need(tw.status_code == 200 and tw.json().get("crc32"), f"twins rebuild HTTP {tw.status_code}")
+    return (f"12 разделов/92 поля; PUT → ред. {put.json()['ver_n']}, изменений {put.json()['changes']}, "
+            f"CRC версии {vers[0]['crc32']}; значение персистировано; quality ok={q.json()['ok']} "
+            f"замечаний {len(q.json()['issues'])}; двойник CRC {tw.json()['crc32']}")
+
+
+check("LP-18", "MOD-PASS/PROF: карта полей → PUT-версия в СУБД → персистентность → quality → двойник", _passport_persistence)
+
+
+def _reports_binary():
+    d = client.get("/api/v1/reports/passport/E01.docx", headers=H)
+    need(d.status_code == 200 and d.content[:2] == b"PK" and len(d.content) > 5000,
+         f"DOCX: HTTP {d.status_code}, магия {d.content[:2]!r}, размер {len(d.content)}")
+    x = client.get("/api/v1/reports/registry.xlsx", headers=H)
+    need(x.status_code == 200 and x.content[:2] == b"PK", f"registry XLSX: HTTP {x.status_code}")
+    e = client.get("/api/v1/reports/evm.xlsx", headers=H)
+    need(e.status_code == 200 and e.content[:2] == b"PK", f"evm XLSX: HTTP {e.status_code}")
+    p = client.get("/api/v1/reports/portfolio.pdf", headers=H)
+    need(p.status_code == 200 and p.content[:4] == b"%PDF", f"portfolio PDF: HTTP {p.status_code}, магия {p.content[:4]!r}")
+    return (f"DOCX {len(d.content)}Б (PK/python-docx), registry XLSX {len(x.content)}Б, "
+            f"evm XLSX {len(e.content)}Б, portfolio PDF {len(p.content)}Б (%PDF/reportlab)")
+
+
+check("LP-19", "MOD-REPORT: реальные бинарные файлы из СУБД (DOCX/XLSX/PDF, маги-байты)", _reports_binary)
 
 
 def _openapi():

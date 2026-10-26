@@ -11,12 +11,12 @@ const ROOT = path.resolve(__dirname, '..');
 const PORT = process.env.TC_STATIC_PORT || 8817;
 const API_PORT = process.env.TC_API_PORT || 8000;
 const WITH_BACKEND = process.env.TC_WITH_BACKEND === '1';
-const SRV_SPEC = '**/10-server-mode.spec.js';
+const SRV_SPEC = '**/srv-*.spec.js';
 
 const webServer = [
   {
     command: `python3 -m http.server ${PORT} --bind 127.0.0.1 --directory "${ROOT}"`,
-    url: `http://127.0.0.1:${PORT}/ais_providets_v102.html`,
+    url: `http://127.0.0.1:${PORT}/ais_providets_v103.html`,
     reuseExistingServer: !process.env.CI,
     timeout: 30 * 1000,
   },

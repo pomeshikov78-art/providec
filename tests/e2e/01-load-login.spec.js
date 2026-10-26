@@ -14,17 +14,17 @@ test('1.2 P3.2: ровно один meta providets-release-version = v102.0.0', 
   await page.goto(APP);
   const metas = page.locator('meta[name="providets-release-version"]');
   await expect(metas).toHaveCount(1);
-  await expect(metas.first()).toHaveAttribute('content', 'v102.0.0');
+  await expect(metas.first()).toHaveAttribute('content', 'v103.0.0');
 });
 
 test('1.3 P3.1: видимые версии на экране входа (loginVerLine + login-note)', async ({ page }) => {
   await page.goto(APP);
-  await expect(page.locator('#loginVerLine')).toContainText('программа v102.0.0');
+  await expect(page.locator('#loginVerLine')).toContainText('программа v103.0.0');
   await expect(page.locator('#loginVerLine')).toContainText('ТЗ 4.0');
-  await expect(page.locator('.login-note')).toContainText('версии 102.0.0');
+  await expect(page.locator('.login-note')).toContainText('версии 103.0.0');
   // единая константа — источник
-  expect(await page.evaluate(() => ver())).toBe('v102.0.0');
-  expect(await page.evaluate(() => APP_VERSION.str)).toBe('v102.0.0');
+  expect(await page.evaluate(() => ver())).toBe('v103.0.0');
+  expect(await page.evaluate(() => APP_VERSION.str)).toBe('v103.0.0');
   expect(await page.evaluate(() => Object.isFrozen(APP_VERSION))).toBe(true);
 });
 

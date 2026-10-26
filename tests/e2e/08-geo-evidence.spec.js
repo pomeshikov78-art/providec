@@ -73,30 +73,32 @@ test('8.4 дорожная карта: панели P1–P5, ворота вып
   expect(errs, errs.join('|')).toEqual([]);
 });
 
-test('8.5 «О системе»: история версий v102 → v101 → v100 → v82', async ({ page }) => {
+test('8.5 «О системе»: история версий v103 → v102 → v101 → v100 → v82', async ({ page }) => {
   await login(page, 'L7');
   await page.evaluate(() => showPage('about', true));
   const html = await page.evaluate(() => document.getElementById('main').innerHTML);
+  const i103 = html.indexOf('>v103.0.0<');
   const i102 = html.indexOf('>v102.0.0<');
   const i101 = html.indexOf('>v101.0.0<');
   const i100 = html.indexOf('>v100.0.0<');
   const i82 = html.indexOf('>v82.0.0<');
-  expect(i102).toBeGreaterThan(-1);
+  expect(i103).toBeGreaterThan(-1);
+  expect(i103).toBeLessThan(i102);
   expect(i102).toBeLessThan(i101);
   expect(i101).toBeLessThan(i100);
   expect(i100).toBeLessThan(i82);
+  expect(html).toContain('Этап 12');
   expect(html).toContain('Д-10');
-  expect(html).toContain('Волна 0 плана улучшений');
-  await expect(page.locator('#main')).toContainText('программа v102.0.0');
+  await expect(page.locator('#main')).toContainText('программа v103.0.0');
 });
 
 test('8.6 встроенные smoke-тесты (P0.19 + Волна 0): ≥ 25 проверок, 0 провалов', async ({ page }) => {
   await login(page, 'L7');
   const rep = await page.evaluate(() => runClientRegressionSmokeTests());
   expect(rep.summary.failed, JSON.stringify(rep.tests.filter(t => t.result !== 'PASS'))).toBe(0);
-  expect(rep.summary.total).toBeGreaterThanOrEqual(26);
-  expect(rep.program).toBe('v102.0.0');
-  for (const id of ['REL-VER-01', 'REL-VER-02', 'A11Y-01', 'NAV-01', 'DL-01', 'GEO-SRI-01', 'SRV-LOGIN-01']) {
+  expect(rep.summary.total).toBeGreaterThanOrEqual(30);
+  expect(rep.program).toBe('v103.0.0');
+  for (const id of ['REL-VER-01', 'REL-VER-02', 'A11Y-01', 'NAV-01', 'DL-01', 'GEO-SRI-01', 'SRV-LOGIN-01', 'SRV-DL-01', 'SRV-PASS-01', 'SRV-REPORT-01', 'SRV-TWIN-01']) {
     expect(rep.tests.some(t => t.id === id && t.result === 'PASS'), `${id} не PASS`).toBe(true);
   }
 });
